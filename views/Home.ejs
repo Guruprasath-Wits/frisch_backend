@@ -1,0 +1,23 @@
+<!-- Filename - Home.ejs -->
+
+<!DOCTYPE html>
+<html>
+<title>Stripe Payment Demo</title>
+<body>
+    <h3>Welcome to Payment Gateway</h3>
+    <form action="order/create" method="POST">
+       <script 
+          src="//checkout.stripe.com/v2/checkout.js"
+          class="stripe-button"
+          data-key="<%= key %>"
+          data-amount="1000"
+          data-currency="EUR"
+          data-name="Germen"
+          data-description="Bakkery"
+          data-locale="auto" >
+        </script>
+    </form>
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stripe-js/5.5.0/index.js" integrity="sha512-61p0OKlFI5cPMNHtmHqt03nZLowR265T2Y4KVq7wQh/Jzw3yvkIWcA0YhpX0ByPh/c4kaPCHHbKKGl58MPknaA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Buy Products</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body class="container">
+  <div class="product"></div>
+</body>
+<script type="text/javascript">
+  const pathParts = window.location.pathname.split('/').filter(Boolean); // Remove empty parts
+  const amount = pathParts[1];  // Extract amount
+  const orderId = pathParts[2]; // Extract order_id
+  const userId = pathParts[3];
+
+  var stripe = Stripe("pk_test_51QMXiP06yTdeLqihXYXgftABoWwPsuhWpZTodjuMQ9DG9Cwo5eSMloAP4oQG1ebgAAFkg2la35VBLgKBGPJPg0u700XDbq7AW5");
+
+  // var stripe = Stripe("pk_live_51QMXiP06yTdeLqih9xRYOhBRxLW6d6YrE1s4px448R8WW9ZCklbQdtB6z4TkZtrrl6M7I38qquUEPNQegre3gF9Y00BpFSRdvN");
+
+  // var stripe = Stripe("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");
+
+
+  fetch(`/paymentSub/${amount}/${orderId}/${userId}`, {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify({
+      "product": {
+        "amount": amount,
+        "currency": "EUR",
+        "quantity": 1,  // Ensure quantity is defined
+      }
+    })
+  })
+    .then(response => response.json())
+    .then(session => {
+      return stripe.redirectToCheckout({ sessionId: session.id });
+    })
+    .then(result => {
+      if (result.error) {
+        alert(result.error.message);
+      } else {
+
+        fetch('/address/createsSubscrption', {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({
+            "orderId":orderId,
+            "response": JSON.stringify(result),
+            "userId":userId
+          })
+        })
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+</script>
+
+</html>

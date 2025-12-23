@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production House Report</title>
+  <style>
+    .container{
+        font-family: Arial, sans-serif;
+    
+        margin: 40px;
+        /* background-image: url('https://api.frischfuersie.de/uploads/settings/back1.png'); */
+        background-image: url('http://localhost:4001/uploads/settings/back1.png');
+
+        
+        
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+    }
+    .left { 
+      /* line-height: 5px; */
+      letter-spacing: 0.4px;
+    }
+    .right img {
+      max-width: 150px;
+      margin-top: -15px;
+    }
+    .order-details span {
+      font-weight: 400;
+    }
+    .order-details h3 {
+      font-size: 20px;
+      padding-bottom: 10px;
+    }
+    .product table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    .product th, .product td {
+      padding: 10px;
+      border: 1px solid black;
+    }
+    .thankyou {
+      margin-top: 50px;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .footer p {
+      font-size: 14px;
+    }
+    .left .p1{
+        color: orangered;
+        font-size: 14px;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    .left .p2{
+        font-size: 14px;
+        line-height: 25px;
+    }
+
+    sub p{
+        margin-top: 40px;
+        font-size: 16px;
+        letter-spacing: 1px;
+        font-weight: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="left">
+        <p class="p1">Frisch für Sie | Lindenhorster Str. 213 | 44339 Dortmund</p>
+        <!-- <h4>Production House : Anjana Infotech</h4>
+        <h4>Address : 44439 Dormund, Germany</h4> -->
+
+        <p class="p2">
+            <span style="font-size: 18px;font-weight: bold;color: black;">Bäckerei Vorwerk</span><br>
+            Höfkerstraße 38<br>
+                <!-- Musterstrasse 1<br> -->
+                44149 Dortmund.
+                
+        </p>
+      </div>
+      <div class="right">
+        <img src=" https://api.frischfuersie.de/uploads/settings/logo-fri.png" alt="Logo">
+        <!-- <img src="http://localhost:4001/uploads/settings/logo-fri.png" alt="Logo" style="max-width: 150px;"> -->
+       
+      </div>
+    </div>
+
+    <div class="order-details">
+      <h3><u>Lieferdetails</u></h3>
+      <h4>Bestelldatum : <span><%= date %></span></h4>
+      <!-- <h4>Auslieferungsdatum : <span>02/12/2024</span></h4>
+      <h4>Lieferadresse : <span>Anna Nagar, Ambalapuli Bazzer, Dormund 44421.</span></h4>
+      <h4>Erwartete Lieferzeit : <span>01:00PM</span></h4> -->
+    </div>
+
+    <div class="sub">
+        <p>Wir bedanken uns für die gute Zusammenarbeit</p>
+      </div>
+
+    <div class="product">
+      <h2>Produktionsauftragübersicht</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Pos.</th>
+            <th>Produktname</th>
+            <th>Bestellmenge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach((product, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= product.product_name %></td>
+              <td><%= product.total_quantity %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="thankyou">
+      <h4>Mit freundlichen Grüssen</h4>
+      <h4 style="margin-top: 20px; margin-bottom: 50px;">lhr Frisch für Sie Team.</h4>
+      <h6 style="margin-top: 20px; margin-bottom: 50px;">Maschinell erstellte Schreiben sind ohne unterschrift gultig</h6>
+    </div>
+
+
+
+
+    <div class="footer">
+      <p>
+        Frisch für Sie<br>
+        Lindenhorster str. 213<br>
+        44339 Dortmund
+      </p>
+      <p>
+        Tel : +49 1575 2995881<br>
+        Email : info@frischfuersie.de<br>
+        Web : frischfuersie.de
+      </p>
+     
+    </div>
+  </div>
+</body>
+</html>
