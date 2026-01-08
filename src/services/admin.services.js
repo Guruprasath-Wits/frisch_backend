@@ -1,28 +1,28 @@
 const sql = require("../helpers/db.js");
 
-const Admin = function(admin) {
-    this.email = admin.username;
-    this.password = admin.password;
-    
+const Admin = function (admin) {
+  this.email = admin.username;
+  this.password = admin.password;
+
 };
 
 Admin.login = (email, result) => {
-    sql.query("SELECT * FROM admins WHERE email = ?", [email], (err, res) => {
-      if (err) {
-        console.log("error:", err);
-        result(err, null);
-        return;
-      }
-  
-      if (res.length) {
-        result(null, res[0]);
-        return;
-      }
-  
-      
-      result({ kind: "not_found" }, null);
-    });
-  };
+  sql.query("SELECT * FROM admins WHERE email = ?", [email], (err, res) => {
+    if (err) {
+      console.log("error:", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      result(null, res[0]);
+      return;
+    }
+
+
+    result({ kind: "not_found" }, null);
+  });
+};
 
 Admin.create = (newAdmin, result) => {
   sql.query("INSERT INTO admins SET ?", newAdmin, (err, res) => {
@@ -58,20 +58,20 @@ Admin.findPermissionsByRoleId = async (roleId) => {
 
 
 Admin.read = (result) => {
-    sql.query("SELECT * FROM admins", (err, results) => {
-        if (err) {
-            console.log("error:", err);
-            result(err, null);
-            return;
-        }
+  sql.query("SELECT * FROM admins", (err, results) => {
+    if (err) {
+      console.log("error:", err);
+      result(err, null);
+      return;
+    }
 
-        if (results.length === 0) {
-            result({ kind: "not_found" }, null);
-            return;
-        }
+    if (results.length === 0) {
+      result({ kind: "not_found" }, null);
+      return;
+    }
 
-        result(null, results);
-    });
+    result(null, results);
+  });
 };
 
 
@@ -88,8 +88,8 @@ Admin.savePermission = async (role_id, access) => {
       INSERT INTO permissions (
         role_id, Category, Product, Customer_Enquiry, OrderList, Sample_Order,
         Our_Delivery_Areas, User_Advantages, Jobs, FAQ, Roles,
-        Permissions, Users, Settings, Imprint
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Permissions, Steuer, Bottle, Users, Settings, Imprint
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         Category = VALUES(Category),
         Product = VALUES(Product),
@@ -102,6 +102,8 @@ Admin.savePermission = async (role_id, access) => {
         FAQ = VALUES(FAQ),
         Roles = VALUES(Roles),
         Permissions = VALUES(Permissions),
+        Steuer = VALUES(Steuer),
+        Bottle = VALUES(Bottle),
         Users = VALUES(Users),
         Settings = VALUES(Settings),
         Imprint = VALUES(Imprint);
@@ -120,6 +122,8 @@ Admin.savePermission = async (role_id, access) => {
       access.FAQ ?? 0,
       access.Roles ?? 0,
       access.Permissions ?? 0,
+      access.Steuer ?? 1,
+      access.Bottle ?? 1,
       access.Users ?? 0,
       access.Settings ?? 0,
       access.Imprint ?? 0
@@ -150,13 +154,13 @@ Admin.updatePermissions = async (role_id, access) => {
       UPDATE permissions 
       SET Category = ?, Product = ?, Customer_Enquiry = ?, OrderList = ?, Sample_Order = ?, 
           Our_Delivery_Areas = ?, User_Advantages = ?, Jobs = ?, FAQ = ?, Roles = ?, 
-          Permissions = ?, Users = ?, Settings = ?, Imprint = ?
+          Permissions = ?, Steuer = ?, Bottle = ?, Users = ?, Settings = ?, Imprint = ?
       WHERE role_id = ?
     `;
     const values = [
       access.Category, access.Product, access.Customer_Enquiry, access.OrderList,
       access.Sample_Order, access.Our_Delivery_Areas, access.User_Advantages, access.Jobs,
-      access.FAQ, access.Roles, access.Permissions, access.Users, access.Settings, access.Imprint,
+      access.FAQ, access.Roles, access.Permissions, access.Steuer, access.Bottle, access.Users, access.Settings, access.Imprint,
       role_id
     ];
     const [result] = await sql.promise().query(query, values);
@@ -189,22 +193,22 @@ Admin.delete = async (id) => {
 Admin.edit = (id, updatedadmin, result) => {
   const query = "UPDATE admins SET  email = ?, password = ? WHERE id = ?";
 
-  sql.query(query, [ updatedadmin.email, updatedadmin.password, id], (err, res) => {
-      if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-      }
+  sql.query(query, [updatedadmin.email, updatedadmin.password, id], (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
 
-      if (res.affectedRows === 0) {
-          const error = new Error("admin not found");
-          console.log("error: ", error.message);
-          result(error, null);
-          return;
-      }
+    if (res.affectedRows === 0) {
+      const error = new Error("admin not found");
+      console.log("error: ", error.message);
+      result(error, null);
+      return;
+    }
 
-      console.log("updated admin: ", { id: id, ...updatedadmin });
-      result(null, { id: id, ...updatedadmin });
+    console.log("updated admin: ", { id: id, ...updatedadmin });
+    result(null, { id: id, ...updatedadmin });
   });
 };
 

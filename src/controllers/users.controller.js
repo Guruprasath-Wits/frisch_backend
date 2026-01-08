@@ -79,7 +79,7 @@ exports.create = async (req, res) => {
   let {
     fname, lname, company_name, email, phone, password,
     address, street, subtown, zipcode, ort, dob,
-    acc_no, ban_no, bc_no, role, role_id
+    acc_no, ban_no, bc_no, role, role_id, floor, lift_availability
   } = req.body;
 
   fname = fname ? fname.toString() : '';
@@ -128,7 +128,8 @@ exports.create = async (req, res) => {
       const newUser = {
         fname, lname, company_name, status, username, email, phone,
         password: hashedPassword, address, street, subtown, zipcode, ort, dob,
-        acc_no, ban_no, bc_no, role, role_id: resolvedRoleId
+        acc_no, ban_no, bc_no, role, role_id: resolvedRoleId,
+        floor, lift_availability
       };
 
       User.create(newUser, (err, data) => {
@@ -145,7 +146,7 @@ exports.create = async (req, res) => {
         });
       });
 
-    } 
+    }
     // ==============================
     // CUSTOMER → OTP FLOW
     // ==============================
@@ -187,6 +188,8 @@ exports.create = async (req, res) => {
             acc_no,
             ban_no,
             bc_no,
+            floor,
+            lift_availability,
             role: "customer"
           }),
         ]
@@ -297,13 +300,14 @@ exports.verifyOtp = async (req, res) => {
     const status = userData.status !== undefined ? userData.status : 1;
 
     await sql.query(
-      `INSERT INTO users (fname, lname, company_name, status, username, email, phone, password, address, street, subtown, zipcode, ort, dob, acc_no, ban_no, bc_no, role) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (fname, lname, company_name, status, username, email, phone, password, address, street, subtown, zipcode, ort, dob, acc_no, ban_no, bc_no, role, floor, lift_availability) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userData.fname, userData.lname, userData.company_name, status,
         userData.username, userData.email, userData.phone, userData.password,
         userData.address, userData.street, userData.subtown, userData.zipcode, userData.ort,
-        userData.dob, userData.acc_no, userData.ban_no, userData.bc_no, userData.role
+        userData.dob, userData.acc_no, userData.ban_no, userData.bc_no, userData.role,
+        userData.floor, userData.lift_availability
       ]
     );
 
@@ -526,7 +530,9 @@ exports.edit = async (req, res) => {
       bc_no: req.body.BIC || null,
       role: req.body.role || "Customer",
       role_id: resolvedRoleId,   // ✅ always update role_id as well
-      status: status
+      status: status,
+      floor: req.body.floor || null,
+      lift_availability: req.body.lift_availability || null
     };
 
     // Remove undefined fields

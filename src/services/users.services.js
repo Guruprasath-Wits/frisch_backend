@@ -6,7 +6,7 @@ const User = function (user) {
   this.email = user.email;
   this.phone = user.phone;
   this.address = user.address;
-  this.street = user.street,
+  this.street = user.street;
   this.subarb = user.subarb;
   this.zipcode = user.zipcode;
   this.ort = user.ort;
@@ -15,7 +15,9 @@ const User = function (user) {
   this.ban_no = user.ban_no;
   this.bc_no = user.bc_no;
   this.role = user.role;
-   this.role_id = user.role_id || 4;
+  this.role_id = user.role_id || 4;
+  this.lift_availability = user.lift_availability;
+  this.floor = user.floor;
   this.company_name = user.company_name;
   this.status = user.status;
 };
@@ -108,7 +110,7 @@ User.updateStatusById = (id, status, result) => {
 
 
 User.read = (result) => {
-  sql.query("SELECT * FROM users", (err, results) => {
+  sql.query("SELECT * FROM users ORDER BY id DESC", (err, results) => {
     if (err) {
       result(err, null);
       return;
