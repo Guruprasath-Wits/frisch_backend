@@ -24,10 +24,10 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir); 
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname); 
+        cb(null, file.originalname);
     },
 });
 
@@ -45,16 +45,16 @@ const upload1 = multer({
         cb(new Error("Error: File upload only supports the following filetypes - " + filetypes));
     },
 });
-  
-  exports.create = (req, res) => {
-      upload1.single("product_img", 10)(req, res, (err) => {
+
+exports.create = (req, res) => {
+    upload1.single("product_img", 10)(req, res, (err) => {
         if (err) {
-          return res.status(500).send({
-            message: "Error uploading the files.",
-            error: err,
-          });
+            return res.status(500).send({
+                message: "Error uploading the files.",
+                error: err,
+            });
         }
-    
+
         const product = {
             product_name: req.body.product_name,
             product_status: req.body.product_status,
@@ -67,72 +67,78 @@ const upload1 = multer({
             weight: req.body.weight && req.body.weight !== "null" ? parseFloat(req.body.weight) : 0, // ✅ Default to 0 if null
             nutri_inform: req.body.nutri_inform,
             status: req.body.status,
-          };
-    
+            availability: req.body.availability,
+            pfand: req.body.pfand,
+            tax: req.body.tax,
+        };
+
         Product.create(product, (err, data) => {
-          if (err) {
-            res.status(500).send({
-              message: err.message || "Some error occurred while creating the Product.",
-            });
-          } else {
-            res.send({
-              status: true,
-              message: "Product created successfully",
-              product: data,
-            });
-          }
-        });
-      });
-    };
-
-
-    exports.edit = (req, res) => {
-        if (!validateRequestBody(req, res)) return;
-    
-        const productId = req.params.id;
-    
-        // Handle file upload if a new file is provided
-        upload1.single('product_img')(req, res, (err) => {
             if (err) {
-                return res.status(500).send({
-                    message: "Error uploading the file.",
-                    error: err.message,
+                res.status(500).send({
+                    message: err.message || "Some error occurred while creating the Product.",
+                });
+            } else {
+                res.send({
+                    status: true,
+                    message: "Product created successfully",
+                    product: data,
                 });
             }
-    
-            // Updated product data, handling new or existing image path
-            const product = {
-                product_name: req.body.product_name,
-                product_status: req.body.product_status,
-                nickname: req.body.nick_name,
-                product_img: req.file ? `/uploads/products/${req.file.filename}` : req.body.product_img, // Use existing image if none is uploaded
-                category_id: req.body.category_id,
-                desc: req.body.desc ? req.body.desc : "",
-                price: req.body.price && req.body.price !== "null" ? parseFloat(req.body.price) : 0, // ✅ Default to 0 if null
-                ingredients: req.body.ingredients,
-                weight: req.body.weight && req.body.weight !== "null" ? parseFloat(req.body.weight) : 0, // ✅ Default to 0 if null
-                nutri_inform: req.body.nutri_inform ? req.body.nutri_inform : "",
-                status: req.body.status && !isNaN(req.body.status) ? parseInt(req.body.status) : 0,
-              };
-    
-            // Call the Product.edit method with updated data
-            Product.edit(productId, product, (err, data) => {
-                if (err) {
-                    res.status(err.kind === "not_found" ? 404 : 500).send({
-                        message: `Error updating product with id ${productId}.`,
-                        error: err.message,
-                    });
-                } else {
-                    res.send({
-                        status: true,
-                        message: "Product updated successfully",
-                        product: data,
-                    });
-                }
-            });
         });
-    };
-    
+    });
+};
+
+
+exports.edit = (req, res) => {
+    if (!validateRequestBody(req, res)) return;
+
+    const productId = req.params.id;
+
+    // Handle file upload if a new file is provided
+    upload1.single('product_img')(req, res, (err) => {
+        if (err) {
+            return res.status(500).send({
+                message: "Error uploading the file.",
+                error: err.message,
+            });
+        }
+
+        // Updated product data, handling new or existing image path
+        const product = {
+            product_name: req.body.product_name,
+            product_status: req.body.product_status,
+            nickname: req.body.nick_name,
+            product_img: req.file ? `/uploads/products/${req.file.filename}` : req.body.product_img, // Use existing image if none is uploaded
+            category_id: req.body.category_id,
+            desc: req.body.desc ? req.body.desc : "",
+            price: req.body.price && req.body.price !== "null" ? parseFloat(req.body.price) : 0, // ✅ Default to 0 if null
+            ingredients: req.body.ingredients,
+            weight: req.body.weight && req.body.weight !== "null" ? parseFloat(req.body.weight) : 0, // ✅ Default to 0 if null
+            nutri_inform: req.body.nutri_inform ? req.body.nutri_inform : "",
+            status: req.body.status && !isNaN(req.body.status) ? parseInt(req.body.status) : 0,
+            availability: req.body.availability,
+            pfand: req.body.pfand,
+            tax: req.body.tax,
+        };
+
+        // Call the Product.edit method with updated data
+        Product.edit(productId, product, (err, data) => {
+            if (err) {
+                res.status(err.kind === "not_found" ? 404 : 500).send({
+                    message: `Error updating product with id ${productId}.`,
+                    error: err.message,
+                });
+            } else {
+                res.send({
+                    status: true,
+                    message: "Product updated successfully",
+                    product: data,
+                });
+            }
+        });
+    });
+};
+
 
 
 exports.delete = (req, res) => {
@@ -179,9 +185,9 @@ exports.read = (req, res) => {
 };
 
 exports.readById = (req, res) => {
-    const id = req.params.id;  
+    const id = req.params.id;
 
-    
+
     Product.findById(id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
