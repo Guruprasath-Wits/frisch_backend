@@ -20,26 +20,31 @@ Product.read = (callback) => {
 };
 
 Product.findById = (id, result) => {
-  sql.query(`SELECT * FROM product WHERE id = ?`, [id], (err, res) => {
-      if (err) {
-          console.log("error: ", err);
-          result(err, null);
-          return;
-      }
+    sql.query(`SELECT * FROM product WHERE id = ?`, [id], (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
 
-      if (res.length) {
-          console.log("found Product: ", res[0]);
-          result(null, res[0]);
-          return;
-      }
+        if (res.length) {
+            console.log("found Product: ", res[0]);
+            result(null, res[0]);
+            return;
+        }
 
-      // no category found with the id
-      result({ kind: "not_found" }, null);
-  });
+        // no category found with the id
+        result({ kind: "not_found" }, null);
+    });
 };
 
 
 Product.create = (newProduct, result) => {
+    // Ensure availability is stringified if it's an object/array
+    if (newProduct.availability && typeof newProduct.availability !== 'string') {
+        newProduct.availability = JSON.stringify(newProduct.availability);
+    }
+
     sql.query("INSERT INTO product SET ?", newProduct, (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -50,25 +55,34 @@ Product.create = (newProduct, result) => {
         console.log("created product: ", { id: res.insertId, ...newProduct });
         result(null, { id: res.insertId, ...newProduct });
     });
-  };
+};
 
 
 
 Product.edit = (id, updatedProduct, result) => {
+    // Ensure availability is stringified if it's an object/array
+    let availability = updatedProduct.availability;
+    if (availability && typeof availability !== 'string') {
+        availability = JSON.stringify(availability);
+    }
+
     sql.query(
-        "UPDATE product SET product_name = ?, nickname = ?, product_status = ?, product_img = ?, category_id = ?, `desc` = ?, price = ?, ingredients = ?, weight = ?, nutri_inform = ?, status = ? WHERE id = ?",
+        "UPDATE product SET product_name = ?, nickname = ?, product_status = ?, product_img = ?, category_id = ?, `desc` = ?, price = ?, ingredients = ?, weight = ?, nutri_inform = ?, status = ?, availability = ?, pfand = ?, tax = ? WHERE id = ?",
         [
             updatedProduct.product_name,
             updatedProduct.nickname,
             updatedProduct.product_status,
             updatedProduct.product_img,
             updatedProduct.category_id,
-            updatedProduct.desc, 
-            updatedProduct.price, // Corrected field name to `cost`
+            updatedProduct.desc,
+            updatedProduct.price,
             updatedProduct.ingredients,
             updatedProduct.weight,
             updatedProduct.nutri_inform,
             updatedProduct.status,
+            availability,
+            updatedProduct.pfand,
+            updatedProduct.tax,
             id,
         ],
         (err, res) => {
@@ -92,7 +106,7 @@ Product.edit = (id, updatedProduct, result) => {
 
 
 
-  Product.delete = (id, result) => {
+Product.delete = (id, result) => {
     const query = "DELETE FROM product WHERE id = ?";
 
     sql.query(query, [id], (err, res) => {
@@ -103,7 +117,7 @@ Product.edit = (id, updatedProduct, result) => {
         }
 
         if (res.affectedRows === 0) {
-            
+
             const error = new Error("Category not found");
             console.log("error: ", error.message);
             result(error, null);
@@ -116,9 +130,9 @@ Product.edit = (id, updatedProduct, result) => {
 };
 
 
-  
-  
-  
+
+
+
 
 
 module.exports = Product;
