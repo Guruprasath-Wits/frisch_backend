@@ -8,7 +8,7 @@ const mysql = require("mysql2/promise");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const xlsx = require("xlsx");
-const OrdersService = require("./src/services/orders.services.js"); 
+const OrdersService = require("./src/services/orders.services.js");
 const PDFDocument = require("pdfkit");
 const stripe = require('stripe')('sk_test_51QMXiP06yTdeLqihtOQXPLgrFQoPSPYHw4HuNIy90Mx4Tjtlok16xABkl2yntYsZnG4Ycsu74iHcscQysICVbiy00018r2DWnl');
 // const stripe = require('stripe')('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');
@@ -16,7 +16,7 @@ const orders = require("./src/services/all_subscription.services.js");
 const dbConfig = require('./src/helpers/db.js')
 const cron = require('node-cron');
 const moment = require('moment');
-const {orderConfirmMail} = require("./src/helpers/mailServices.js");
+const { orderConfirmMail } = require("./src/helpers/mailServices.js");
 const { TimeoutSettings } = require("puppeteer");
 
 // const UNZER_PRIVATE_KEY = 's-priv-2a10ptr5q2ZTUdI7aYwJqreRyOyIrnjU'; // Test Key
@@ -108,7 +108,7 @@ app.post("/validate-iban", (req, res) => {
       });
     });
   });
-    apiReq.on("error", (e) => {
+  apiReq.on("error", (e) => {
     res.status(500).json({ error: e.message });
   });
 
@@ -122,23 +122,23 @@ app.post("/validate-iban", (req, res) => {
 app.post('/api/init-payment', async (req, res) => {
   try {
     const { customerData, basketData, returnUrl } = req.body;
-    console.log(customerData,"customerData")
+    console.log(customerData, "customerData")
 
     // 1. Create Customer
     const customerRes = await axios.post('https://api.unzer.com/v1/customers', customerData, {
-     headers: {
-      Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
-      'Content-Type': 'application/json',
-    }
+      headers: {
+        Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
+        'Content-Type': 'application/json',
+      }
     });
     const customerId = customerRes.data.id;
 
     // 2. Create Basket
     const basketRes = await axios.post('https://api.unzer.com/v1/baskets', basketData, {
       headers: {
-      Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
-      'Content-Type': 'application/json',
-    }
+        Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
+        'Content-Type': 'application/json',
+      }
     });
     const basketId = basketRes.data.id;
 
@@ -151,12 +151,12 @@ app.post('/api/init-payment', async (req, res) => {
         customerId,
         basketId,
       },
-       allowedPaymentMethods: ['card', 'googlepay', 'applepay'],
+      allowedPaymentMethods: ['card', 'googlepay', 'applepay'],
     }, {
-     headers: {
-      Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
-      'Content-Type': 'application/json',
-    }
+      headers: {
+        Authorization: `Basic ${Buffer.from(UNZER_PRIVATE_KEY + ':').toString('base64')}`,
+        'Content-Type': 'application/json',
+      }
     });
 
     res.json({ payPageId: paypageRes.data.id });
@@ -260,7 +260,7 @@ app.post("/payment/:amount/:order_id/:user_id", async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card",   "klarna", ], 
+      payment_method_types: ["card", "klarna",],
       // payment_method_types: ["card", "apple_pay", "google_pay",  "sepa_debit"],
       line_items: [
         {
@@ -275,10 +275,10 @@ app.post("/payment/:amount/:order_id/:user_id", async (req, res) => {
         },
       ],
       mode: "payment",
-      locale: "de", 
+      locale: "de",
       billing_address_collection: "required",
       shipping_address_collection: {
-        allowed_countries: ["DE"], 
+        allowed_countries: ["DE"],
       },
       success_url: `https://frischfuersie.de/stripe-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order_id}`,
       cancel_url: `https://frischfuersie.de/stripe-failure?order_id=${order_id}`,
@@ -304,7 +304,7 @@ app.post("/paymentSub/:amount/:order_id/:user_id", async (req, res) => {
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card",  "sepa_debit", "klarna" ], 
+      payment_method_types: ["card", "sepa_debit", "klarna"],
       // payment_method_types: ["card", "apple_pay", "google_pay",  "sepa_debit"],
       line_items: [
         {
@@ -319,10 +319,10 @@ app.post("/paymentSub/:amount/:order_id/:user_id", async (req, res) => {
         },
       ],
       mode: "payment",
-      locale: "de", 
+      locale: "de",
       billing_address_collection: "required",
       shipping_address_collection: {
-        allowed_countries: ["DE"], 
+        allowed_countries: ["DE"],
       },
       success_url: `https://frischfuersie.de/stripe-Subscription-success?session_id={CHECKOUT_SESSION_ID}&order_id=${order_id}`,
       cancel_url: `https://frischfuersie.de/stripe-failure?order_id=${order_id}`,
@@ -458,7 +458,7 @@ app.post('/payment-success', async (req, res) => {
     // 2. Check if payment is successful
     if (response.data?.state?.name === 'completed') {
       // 3. Update order status
-       await OrdersService.updatePaymentStatus(orderId, "success", "pending");
+      await OrdersService.updatePaymentStatus(orderId, "success", "pending");
       // await OrdersService.updatePaymentStatus(orderId, { status: 'success' });
       return res.json({ success: true, message: 'Unzer payment success confirmed' });
     }
@@ -500,7 +500,7 @@ app.post('/api/create-payment-intent', async (req, res) => {
 
 app.post('/update-payment-status', async (req, res) => {
   const { order_id, payment_status } = req.body;
-  
+
   // Save order_id & payment_status to the database
   console.log(`Order ID: ${order_id}, Payment Status: ${payment_status}`);
 
@@ -545,8 +545,8 @@ app.get("/pay", function (req, res) {
 
   const currentUser = req.user || null;
   res.render("Home", {
-      key: Publishable_Key,
-      current_user: currentUser 
+    key: Publishable_Key,
+    current_user: currentUser
   });
 });
 
@@ -1020,7 +1020,7 @@ let authHeader = {
 //   }
 // });
 
-  // every minute (for testing)
+// every minute (for testing)
 // cron.schedule("0 10 2 * *",
 //    async () => {
 //   console.log("🔁 Monthly Subscription Billing Cron Triggered");
@@ -1243,17 +1243,17 @@ let authHeader = {
 
 // cron.schedule('* * * * *',  // every minute (for testing)
 cron.schedule("0 10 2 * *",
-   async () => {
-  console.log("🔁 Monthly Subscription Billing Cron Triggered");
+  async () => {
+    console.log("🔁 Monthly Subscription Billing Cron Triggered");
 
-  if (!db || !db.promise || typeof moment !== "function") {
-    console.error("❌ Database connection or moment.js not initialized");
-    return;
-  }
+    if (!db || !db.promise || typeof moment !== "function") {
+      console.error("❌ Database connection or moment.js not initialized");
+      return;
+    }
 
-  try {
-    // 1. Get subscription totals per user for last month
-    const [subscriptions] = await db.promise().query(`
+    try {
+      // 1. Get subscription totals per user for last month
+      const [subscriptions] = await db.promise().query(`
       SELECT s.user_id, s.paymentType, SUM(s.price) AS total_price, SUM(s.tips) AS total_tips,
       SUM(s.deliveryFee) AS deliveryFee,
              u.username, u.email, u.ban_no, u.paypal_payment_id, u.paypal_type_id
@@ -1265,200 +1265,200 @@ cron.schedule("0 10 2 * *",
       GROUP BY s.user_id
     `);
 
-    for (const sub of subscriptions) {
-      const user_id = sub.user_id;
-      const total_amount = parseFloat(
-        (parseFloat(sub.total_price || 0) + parseFloat(sub.total_tips || 0) + parseFloat(sub.deliveryFee || 0)).toFixed(2)
-      );
+      for (const sub of subscriptions) {
+        const user_id = sub.user_id;
+        const total_amount = parseFloat(
+          (parseFloat(sub.total_price || 0) + parseFloat(sub.total_tips || 0) + parseFloat(sub.deliveryFee || 0)).toFixed(2)
+        );
 
-      try {
-       if ((sub.paymentType || "").toUpperCase() === "SEPA") {
-          // ---- SEPA Flow ----
-          if (!sub.ban_no) {
-            console.warn(`⚠️ Skipping SEPA user ${user_id}: IBAN not found`);
-            await db.promise().query(
-              `INSERT INTO subscription_transactions 
+        try {
+          if ((sub.paymentType || "").toUpperCase() === "SEPA") {
+            // ---- SEPA Flow ----
+            if (!sub.ban_no) {
+              console.warn(`⚠️ Skipping SEPA user ${user_id}: IBAN not found`);
+              await db.promise().query(
+                `INSERT INTO subscription_transactions 
                 (user_id, username, amount, payment_id, status, billing_month, error_message) 
                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  user_id,
+                  sub.username || "Unknown",
+                  total_amount,
+                  null,
+                  "failed",
+                  moment().subtract(1, "month").format("YYYY-MM"),
+                  "IBAN not found",
+                ]
+              );
+              continue;
+            }
+
+            // Create Unzer customer
+            const customerRes = await axios.post(
+              "https://api.unzer.com/v1/customers",
+              {
+                firstname: sub.username || "Test",
+                lastname: "Customer",
+                email: sub.email || `user${user_id}@example.com`,
+              },
+              { headers: authHeader }
+            );
+            const customerId = customerRes.data.id;
+
+            // Create SEPA payment type
+            const sepaRes = await axios.post(
+              "https://api.unzer.com/v1/types/sepa-direct-debit",
+              {
+                iban: sub.ban_no,
+                holder: sub.username || "Test Holder",
+              },
+              { headers: authHeader }
+            );
+            const paymentTypeId = sepaRes.data.id;
+
+            // Charge SEPA
+            const chargePayload = {
+              amount: total_amount,
+              currency: "EUR",   // ✅ Hardcoded to EUR
+              orderId: `SUBS-SEPA-${user_id}-${moment().format("YYYYMM")}`,
+              resources: {
+                typeId: paymentTypeId,
+                customerId: customerId,
+              },
+              additionalTransactionData: { sepaDirectDebit: { recurrenceType: "scheduled" } },
+            };
+
+            const payRes = await axios.post(
+              "https://api.unzer.com/v1/payments/charges",
+              chargePayload,
+              { headers: authHeader }
+            );
+
+            const paymentId = payRes.data.id;
+            const status = payRes.data.processing?.result?.description || "success";
+
+            console.log(`✅ SEPA Payment Success: ${paymentId} | Status: ${status}`);
+
+            await db.promise().query(
+              `INSERT INTO subscription_transactions 
+              (user_id, username, amount, payment_id, status, billing_month, error_message) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
               [
                 user_id,
-                sub.username || "Unknown",
+                sub.username,
                 total_amount,
-                null,
-                "failed",
+                paymentId,
+                "success",
                 moment().subtract(1, "month").format("YYYY-MM"),
-                "IBAN not found",
+                null,
               ]
             );
-            continue;
+          } else if ((sub.paymentType || "").toUpperCase() === "PAYPAL") {
+            // ---- PayPal Recurring Billing via Unzer ----
+            if (!sub.paypal_payment_id || !sub.paypal_type_id) {
+              console.warn(`⚠️ Skipping PayPal user ${user_id}: missing paymentId/typeId`);
+
+              await db.promise().query(
+                `INSERT INTO subscription_transactions 
+        (user_id, username, amount, payment_id, status, billing_month, error_message) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  user_id,
+                  sub.username || "Unknown",
+                  total_amount,
+                  null,
+                  "failed",
+                  moment().subtract(1, "month").format("YYYY-MM"),
+                  "PayPal paymentId/typeId missing",
+                ]
+              );
+              continue;
+            }
+
+            try {
+              const chargeRes = await axios.post(
+                "https://api.unzer.com/v1/payments/charges",
+                {
+                  amount: total_amount,                     // ✅ monthly subscription amount
+                  currency: "EUR",                           // ✅ Fixed hardcoded currency
+                  resources: {
+                    typeId: sub.paypal_payment_id,           // ✅ stored billing agreement (s-ppl-xxxx)
+                  },
+                  paymentReference: `SUBS-PAYPAL-${user_id}-${moment().format("YYYYMM")}`, // ✅ clear reference
+                  returnUrl: "https://frischfuersie.de/paypal-subscription-success"  // ✅ REQUIRED
+                },
+                {
+                  headers: {
+                    Authorization: `Basic ${Buffer.from(`${UNZER_PRIVATE_KEY}:`).toString("base64")}`,
+                    "Content-Type": "application/json"
+                  }
+                }
+              );
+
+              console.log(`✅ PayPal Charge Success: User ${user_id}, Amount ${total_amount} EUR`);
+              console.log("Unzer Response:", chargeRes.data);
+
+              // ✅ Log transaction in DB
+              await db.promise().query(
+                `INSERT INTO subscription_transactions 
+        (user_id, username, amount, payment_id, status, billing_month, error_message) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  user_id,
+                  sub.username,
+                  total_amount,
+                  chargeRes.data.id || sub.paypal_payment_id, // ✅ use Unzer charge id
+                  "success",
+                  moment().subtract(1, "month").format("YYYY-MM"),
+                  null,
+                ]
+              );
+
+            } catch (err) {
+              console.error(`❌ PayPal Charge Failed: User ${user_id}`, err.response?.data || err.message);
+
+              await db.promise().query(
+                `INSERT INTO subscription_transactions 
+        (user_id, username, amount, payment_id, status, billing_month, error_message) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [
+                  user_id,
+                  sub.username,
+                  total_amount,
+                  sub.paypal_payment_id || null,
+                  "failed",
+                  moment().subtract(1, "month").format("YYYY-MM"),
+                  err.response?.data?.errors?.[0]?.customerMessage || err.message
+                ]
+              );
+            }
           }
 
-          // Create Unzer customer
-          const customerRes = await axios.post(
-            "https://api.unzer.com/v1/customers",
-            {
-              firstname: sub.username || "Test",
-              lastname: "Customer",
-              email: sub.email || `user${user_id}@example.com`,
-            },
-            { headers: authHeader }
-          );
-          const customerId = customerRes.data.id;
-
-          // Create SEPA payment type
-          const sepaRes = await axios.post(
-            "https://api.unzer.com/v1/types/sepa-direct-debit",
-            {
-              iban: sub.ban_no,
-              holder: sub.username || "Test Holder",
-            },
-            { headers: authHeader }
-          );
-          const paymentTypeId = sepaRes.data.id;
-
-          // Charge SEPA
-          const chargePayload = {
-            amount: total_amount,
-            currency: "EUR",   // ✅ Hardcoded to EUR
-            orderId: `SUBS-SEPA-${user_id}-${moment().format("YYYYMM")}`,
-            resources: {
-              typeId: paymentTypeId,
-              customerId: customerId,
-            },
-            additionalTransactionData: { sepaDirectDebit: { recurrenceType: "scheduled" } },
-          };
-
-          const payRes = await axios.post(
-            "https://api.unzer.com/v1/payments/charges",
-            chargePayload,
-            { headers: authHeader }
-          );
-
-          const paymentId = payRes.data.id;
-          const status = payRes.data.processing?.result?.description || "success";
-
-          console.log(`✅ SEPA Payment Success: ${paymentId} | Status: ${status}`);
+        } catch (innerErr) {
+          let errorMsg = innerErr.response?.data
+            ? JSON.stringify(innerErr.response.data.errors || innerErr.response.data)
+            : innerErr.message;
 
           await db.promise().query(
             `INSERT INTO subscription_transactions 
-              (user_id, username, amount, payment_id, status, billing_month, error_message) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [
-              user_id,
-              sub.username,
-              total_amount,
-              paymentId,
-              "success",
-              moment().subtract(1, "month").format("YYYY-MM"),
-              null,
-            ]
-          );
-} else if ((sub.paymentType || "").toUpperCase() === "PAYPAL") {
-  // ---- PayPal Recurring Billing via Unzer ----
-  if (!sub.paypal_payment_id || !sub.paypal_type_id) {
-    console.warn(`⚠️ Skipping PayPal user ${user_id}: missing paymentId/typeId`);
-
-    await db.promise().query(
-      `INSERT INTO subscription_transactions 
-        (user_id, username, amount, payment_id, status, billing_month, error_message) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        user_id,
-        sub.username || "Unknown",
-        total_amount,
-        null,
-        "failed",
-        moment().subtract(1, "month").format("YYYY-MM"),
-        "PayPal paymentId/typeId missing",
-      ]
-    );
-    continue;
-  }
-
-  try {
-    const chargeRes = await axios.post(
-      "https://api.unzer.com/v1/payments/charges",
-      {
-        amount: total_amount,                     // ✅ monthly subscription amount
-        currency: "EUR",                           // ✅ Fixed hardcoded currency
-        resources: {
-          typeId: sub.paypal_payment_id,           // ✅ stored billing agreement (s-ppl-xxxx)
-        },
-        paymentReference: `SUBS-PAYPAL-${user_id}-${moment().format("YYYYMM")}`, // ✅ clear reference
-        returnUrl: "https://frischfuersie.de/paypal-subscription-success"  // ✅ REQUIRED
-      },
-      {
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${UNZER_PRIVATE_KEY}:`).toString("base64")}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    console.log(`✅ PayPal Charge Success: User ${user_id}, Amount ${total_amount} EUR`);
-    console.log("Unzer Response:", chargeRes.data);
-
-    // ✅ Log transaction in DB
-    await db.promise().query(
-      `INSERT INTO subscription_transactions 
-        (user_id, username, amount, payment_id, status, billing_month, error_message) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        user_id,
-        sub.username,
-        total_amount,
-        chargeRes.data.id || sub.paypal_payment_id, // ✅ use Unzer charge id
-        "success",
-        moment().subtract(1, "month").format("YYYY-MM"),
-        null,
-      ]
-    );
-
-  } catch (err) {
-    console.error(`❌ PayPal Charge Failed: User ${user_id}`, err.response?.data || err.message);
-
-    await db.promise().query(
-      `INSERT INTO subscription_transactions 
-        (user_id, username, amount, payment_id, status, billing_month, error_message) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        user_id,
-        sub.username,
-        total_amount,
-        sub.paypal_payment_id || null,
-        "failed",
-        moment().subtract(1, "month").format("YYYY-MM"),
-        err.response?.data?.errors?.[0]?.customerMessage || err.message
-      ]
-    );
-  }
-}
-
-      } catch (innerErr) {
-        let errorMsg = innerErr.response?.data
-          ? JSON.stringify(innerErr.response.data.errors || innerErr.response.data)
-          : innerErr.message;
-
-        await db.promise().query(
-          `INSERT INTO subscription_transactions 
             (user_id, username, amount, payment_id, status, billing_month, error_message) 
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [
-            user_id,
-            sub.username || "Unknown",
-            total_amount,
-            null,
-            "failed",
-            moment().subtract(1, "month").format("YYYY-MM"),
-            errorMsg,
-          ]
-        );
+            [
+              user_id,
+              sub.username || "Unknown",
+              total_amount,
+              null,
+              "failed",
+              moment().subtract(1, "month").format("YYYY-MM"),
+              errorMsg,
+            ]
+          );
+        }
       }
+    } catch (err) {
+      console.error("❌ Subscription Billing Cron Error:", err.message || err);
     }
-  } catch (err) {
-    console.error("❌ Subscription Billing Cron Error:", err.message || err);
-  }
-});
+  });
 
 // manual triger monthly billingMonth
 
@@ -2033,7 +2033,7 @@ app.post("/testPayPalCharge", async (req, res) => {
 app.post("/all_subscribe_paypal", async (req, res) => {
   try {
     const headers = {
-            Authorization: `Basic ${Buffer.from(`${UNZER_PRIVATE_KEY}:`).toString("base64")}`,
+      Authorization: `Basic ${Buffer.from(`${UNZER_PRIVATE_KEY}:`).toString("base64")}`,
 
       "Content-Type": "application/json"
     };
@@ -2058,8 +2058,8 @@ app.post("/all_subscribe_paypal", async (req, res) => {
         currency: "EUR",
         returnUrl: "https://frischfuersie.de/paypal-subscription-success",
         cancelUrl: "https://frischfuersie.de/paypal-subscription-failed",
-      //  returnUrl: "http://localhost:4200/paypal-subscription-success",
-      //   cancelUrl: "http://localhost:4200/paypal-subscription-failed",
+        //  returnUrl: "http://localhost:4200/paypal-subscription-success",
+        //   cancelUrl: "http://localhost:4200/paypal-subscription-failed",
       },
       { headers }
     );
@@ -2112,12 +2112,12 @@ app.post("/save-paypal-subscription", async (req, res) => {
 
 
     // Build order data
-     const currentDateIST = new Date().toLocaleDateString('en-GB', {
-            timeZone: 'Asia/Kolkata',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/\//g, '');
+    const currentDateIST = new Date().toLocaleDateString('en-GB', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\//g, '');
     const newOrderId = `FfSs_${currentDateIST}_${Math.floor(1000 + Math.random() * 9000)}`;
     const orderData = {
       order_id: newOrderId,
@@ -2131,8 +2131,8 @@ app.post("/save-paypal-subscription", async (req, res) => {
       instruction: instruction || "",
       address: address || "",
       contact: contact || "",
-      paymentId : paymentId,
-      typeId : typeId,
+      paymentId: paymentId,
+      typeId: typeId,
 
       // created_at: new Date(),
     };
@@ -2140,7 +2140,7 @@ app.post("/save-paypal-subscription", async (req, res) => {
     // Save into orders + orders_details
     const result = await orders.create(orderData, productDetails);
 
-     return res.status(200).json({
+    return res.status(200).json({
       message: "Subscription saved successfully",
       orderId: result.orderId,
       products: result.products || [],
@@ -2173,17 +2173,17 @@ app.get('/subscription/transactions', async (req, res) => {
   if (!month || !year) {
     return res.status(400).json({ error: 'month and year are required' });
   }
-    const billingMonth = `${year}-${month.padStart(2, '0')}`;
-    try {
-      const [rows] = await db.promise().query(
-        'SELECT * FROM subscription_transactions WHERE billing_month = ? ORDER BY `subscription_transactions`.`created_at` DESC',
-        [billingMonth]
-      );
-      res.json({ transactions: rows });
-    } catch (err) {
-      console.error('Error fetching transactions:', err);
-      res.status(500).json({ error: 'Failed to fetch transactions' });
-    }
+  const billingMonth = `${year}-${month.padStart(2, '0')}`;
+  try {
+    const [rows] = await db.promise().query(
+      'SELECT * FROM subscription_transactions WHERE billing_month = ? ORDER BY `subscription_transactions`.`created_at` DESC',
+      [billingMonth]
+    );
+    res.json({ transactions: rows });
+  } catch (err) {
+    console.error('Error fetching transactions:', err);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
 });
 
 
@@ -2296,126 +2296,126 @@ app.get('/subscription/transactions', async (req, res) => {
 
 // cron.schedule('* * * * *', // every minute (for testing)
 cron.schedule('0 14 * * 5',
-   async () => {   // Server 14:00 = German 16:00
-  try {
-    const [subscriptions] = await db.promise().query(
-      "SELECT * FROM all_subscription WHERE status = 1"
-    );
+  async () => {   // Server 14:00 = German 16:00
+    try {
+      const [subscriptions] = await db.promise().query(
+        "SELECT * FROM all_subscription WHERE status = 1"
+      );
 
-    for (const sub of subscriptions) {
-      const deliveryOption = sub.deliveryDayOption ; // 'saturday' | 'sunday' | 'both'
+      for (const sub of subscriptions) {
+        const deliveryOption = sub.deliveryDayOption; // 'saturday' | 'sunday' | 'both'
 
-      console.log(`Processing subscription for ${sub.user_id} - option: ${deliveryOption}`);
+        console.log(`Processing subscription for ${sub.user_id} - option: ${deliveryOption}`);
 
-      // Determine delivery days needed
-      const deliveryDays = [];
+        // Determine delivery days needed
+        const deliveryDays = [];
 
-      if (deliveryOption === "saturday") deliveryDays.push(6);  // Saturday
-      if (deliveryOption === "sunday") deliveryDays.push(0);    // Sunday
-      if (deliveryOption === "both") deliveryDays.push(6, 0);   // Sat + Sun
+        if (deliveryOption === "saturday") deliveryDays.push(6);  // Saturday
+        if (deliveryOption === "sunday") deliveryDays.push(0);    // Sunday
+        if (deliveryOption === "both") deliveryDays.push(6, 0);   // Sat + Sun
 
-      // Process each delivery day independently
-      for (const dayCode of deliveryDays) {
-        
-        const today = moment();
-        const todayDay = today.day();
+        // Process each delivery day independently
+        for (const dayCode of deliveryDays) {
 
-        const nextDeliveryDate =
-          dayCode <= todayDay
-            ? moment().day(dayCode + 7).format('YYYY-MM-DD')
-            : moment().day(dayCode).format('YYYY-MM-DD');
+          const today = moment();
+          const todayDay = today.day();
 
-        // Check vacation period
-        const isOnVacation =
-          sub.vacation_start &&
-          sub.vacation_end &&
-          moment(nextDeliveryDate).isBetween(
-            moment(sub.vacation_start),
-            moment(sub.vacation_end),
-            undefined,
-            "[]"
+          const nextDeliveryDate =
+            dayCode <= todayDay
+              ? moment().day(dayCode + 7).format('YYYY-MM-DD')
+              : moment().day(dayCode).format('YYYY-MM-DD');
+
+          // Check vacation period
+          const isOnVacation =
+            sub.vacation_start &&
+            sub.vacation_end &&
+            moment(nextDeliveryDate).isBetween(
+              moment(sub.vacation_start),
+              moment(sub.vacation_end),
+              undefined,
+              "[]"
+            );
+
+          if (isOnVacation) {
+            console.log(`Skipping ${nextDeliveryDate} for user ${sub.user_id} due to vacation.`);
+            continue;
+          }
+
+          // New order ID
+          const newOrderId = `FfSs_${moment().format("DDMMYYYY")}_${Math.floor(Math.random() * 9000 + 1000)}`;
+
+          // Prepare subscription row
+          const newSub = {
+            ...sub,
+            order_id: newOrderId,
+            delivery_date: nextDeliveryDate,
+            subscription_id: sub.id,
+            status: "pending"
+          };
+          delete newSub.id;
+
+          await db.promise().query("INSERT INTO subscription SET ?", newSub);
+
+          // Copy product items
+          const [orderItems] = await db.promise().query(
+            "SELECT product_name, quantity, price FROM orders_details WHERE order_id = ?",
+            [sub.order_id]
           );
 
-        if (isOnVacation) {
-          console.log(`Skipping ${nextDeliveryDate} for user ${sub.user_id} due to vacation.`);
-          continue;
-        }
+          for (const item of orderItems) {
+            await db.promise().query(
+              "INSERT INTO orders_details (order_id, product_name, quantity, price) VALUES (?, ?, ?, ?)",
+              [newOrderId, item.product_name, item.quantity, item.price]
+            );
+          }
 
-        // New order ID
-        const newOrderId = `FfSs_${moment().format("DDMMYYYY")}_${Math.floor(Math.random() * 9000 + 1000)}`;
+          const formattedProducts = orderItems.map(item => [item.product_name, item.quantity, item.price]);
 
-        // Prepare subscription row
-        const newSub = {
-          ...sub,
-          order_id: newOrderId,
-          delivery_date: nextDeliveryDate,
-          subscription_id: sub.id,
-          status: "pending"
-        };
-        delete newSub.id;
-
-        await db.promise().query("INSERT INTO subscription SET ?", newSub);
-
-        // Copy product items
-        const [orderItems] = await db.promise().query(
-          "SELECT product_name, quantity, price FROM orders_details WHERE order_id = ?",
-          [sub.order_id]
-        );
-
-        for (const item of orderItems) {
-          await db.promise().query(
-            "INSERT INTO orders_details (order_id, product_name, quantity, price) VALUES (?, ?, ?, ?)",
-            [newOrderId, item.product_name, item.quantity, item.price]
+          // Fetch user info
+          const [userRows] = await db.promise().query(
+            "SELECT username, email FROM users WHERE id = ?",
+            [sub.user_id]
           );
+
+          if (!userRows || userRows.length === 0) {
+            console.warn(`User not found for ID: ${sub.user_id}`);
+            continue;
+          }
+
+          const user = userRows[0];
+
+          const orderData = {
+            order_id: newOrderId,
+            user_id: sub.user_id,
+            delivery_date: nextDeliveryDate,
+            deliveryFee: sub.deliveryFee || 0,
+            address: sub.address,
+            contact: sub.contact,
+            instruction: sub.instruction,
+            price: sub.price,
+            tips: sub.tips,
+            lat: sub.lat,
+            lng: sub.lng,
+            zipcode: sub.zipcode || ''
+          };
+
+          const userData = {
+            username: user.username,
+            email: user.email
+          };
+
+          const mailResult = await orderConfirmMail(orderData, formattedProducts, userData);
+          if (!mailResult.success) {
+            console.error(`Email failed for order ${newOrderId}`, mailResult);
+          }
+
+          console.log(`✅ Subscription order created for user ${sub.user_id} on ${nextDeliveryDate}`);
         }
-
-        const formattedProducts = orderItems.map(item => [item.product_name, item.quantity, item.price]);
-
-        // Fetch user info
-        const [userRows] = await db.promise().query(
-          "SELECT username, email FROM users WHERE id = ?",
-          [sub.user_id]
-        );
-
-        if (!userRows || userRows.length === 0) {
-          console.warn(`User not found for ID: ${sub.user_id}`);
-          continue;
-        }
-
-        const user = userRows[0];
-
-        const orderData = {
-          order_id: newOrderId,
-          user_id: sub.user_id,
-          delivery_date: nextDeliveryDate,
-          deliveryFee : sub.deliveryFee || 0,
-          address: sub.address,
-          contact: sub.contact,
-          instruction: sub.instruction,
-          price: sub.price,
-          tips: sub.tips,
-          lat: sub.lat,
-          lng: sub.lng,
-          zipcode: sub.zipcode || ''
-        };
-
-        const userData = {
-          username: user.username,
-          email: user.email
-        };
-
-        const mailResult = await orderConfirmMail(orderData, formattedProducts, userData);
-        if (!mailResult.success) {
-          console.error(`Email failed for order ${newOrderId}`, mailResult);
-        }
-
-        console.log(`✅ Subscription order created for user ${sub.user_id} on ${nextDeliveryDate}`);
       }
+    } catch (err) {
+      console.error("❌ Cron job error:", err.message);
     }
-  } catch (err) {
-    console.error("❌ Cron job error:", err.message);
-  }
-});
+  });
 
 
 app.get("/production/pdf", (req, res) => {
@@ -2440,41 +2440,41 @@ app.get("/production/pdf", (req, res) => {
   //     const orderIds = orderIdsResult.map(row => row.order_id);
 
   pool.query(
-  `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'processing'`,
+    `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'processing'`,
     // `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'completed'`,
 
-  [date],
-  (err, normalOrdersResult) => {
-    if (err) {
-      console.error("Error fetching normal order IDs:", err);
-      return res.status(500).send("Internal server error.");
-    }
-
-    pool.query(
-      `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'processing'`,
-            // `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'completed'`,
-
-      [date],
-      (err, subscriptionOrdersResult) => {
-        if (err) {
-          console.error("Error fetching subscription order IDs:", err);
-          return res.status(500).send("Internal server error.");
-        }
-
-        // Collect both
-        const orderIds = [
-          ...normalOrdersResult.map(row => row.order_id),
-          ...subscriptionOrdersResult.map(row => row.order_id),
-        ];
-
-
-      if (orderIds.length === 0) {
-        return res.status(404).send("No orders found for the given date.");
+    [date],
+    (err, normalOrdersResult) => {
+      if (err) {
+        console.error("Error fetching normal order IDs:", err);
+        return res.status(500).send("Internal server error.");
       }
 
-      // Step 2: Get total quantity of products based on category
       pool.query(
-        `
+        `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'processing'`,
+        // `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'completed'`,
+
+        [date],
+        (err, subscriptionOrdersResult) => {
+          if (err) {
+            console.error("Error fetching subscription order IDs:", err);
+            return res.status(500).send("Internal server error.");
+          }
+
+          // Collect both
+          const orderIds = [
+            ...normalOrdersResult.map(row => row.order_id),
+            ...subscriptionOrdersResult.map(row => row.order_id),
+          ];
+
+
+          if (orderIds.length === 0) {
+            return res.status(404).send("No orders found for the given date.");
+          }
+
+          // Step 2: Get total quantity of products based on category
+          pool.query(
+            `
         SELECT 
           od.product_name, 
           SUM(od.quantity) AS total_quantity
@@ -2489,37 +2489,37 @@ app.get("/production/pdf", (req, res) => {
         GROUP BY 
           od.product_name
         `,
-        [orderIds, category],
-        async (err, productQuantities) => {
-          if (err) {
-            console.error("Error fetching product quantities:", err);
-            return res.status(500).send("Internal server error.");
-          }
+            [orderIds, category],
+            async (err, productQuantities) => {
+              if (err) {
+                console.error("Error fetching product quantities:", err);
+                return res.status(500).send("Internal server error.");
+              }
 
-          if (productQuantities.length === 0) {
-            return res.status(404).send("No products found matching the given category.");
-          }
+              if (productQuantities.length === 0) {
+                return res.status(404).send("No products found matching the given category.");
+              }
 
-          try {
-            // Step 3: Render EJS
-            const html = await ejs.renderFile(
-              path.join(__dirname, "./views/product.ejs"),
-              { products: productQuantities, date }
-            );
+              try {
+                // Step 3: Render EJS
+                const html = await ejs.renderFile(
+                  path.join(__dirname, "./views/product.ejs"),
+                  { products: productQuantities, date }
+                );
 
-            // Step 4: Generate PDF
-            // const browser = await puppeteer.launch();
-            const browser = await puppeteer.launch({
-              args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
-            
-            const page = await browser.newPage();
+                // Step 4: Generate PDF
+                // const browser = await puppeteer.launch();
+                const browser = await puppeteer.launch({
+                  args: ['--no-sandbox', '--disable-setuid-sandbox']
+                });
 
-            await page.setContent(html, { waitUntil: "load" });
+                const page = await browser.newPage();
 
-            const pdfPath = path.join(__dirname, "productionHouse.pdf");
+                await page.setContent(html, { waitUntil: "load" });
 
-const footerTemplate = `
+                const pdfPath = path.join(__dirname, "productionHouse.pdf");
+
+                const footerTemplate = `
   <div style="font-size: 14px; width: 100%; padding: 10px; color: orangered; font-family: Arial, sans-serif;">
     <hr style="border: 0.5px solid orangered; margin-bottom: 10px;">
     <div style="display: flex; justify-content: space-between; padding: 0 20px; align-items: flex-start;">
@@ -2545,42 +2545,42 @@ const footerTemplate = `
 
 
 
-            await page.pdf({
-              path: pdfPath,
-              format: "A4",
-              printBackground: true,
-              margin: {
-                top: "10mm",
-                bottom: "35mm",
-                left: "10mm",
-                right: "10mm",
-              },
-              displayHeaderFooter: true,
-              headerTemplate: '<div style="font-size:10px; text-align:center;"></div>',
-              footerTemplate,
-            });
+                await page.pdf({
+                  path: pdfPath,
+                  format: "A4",
+                  printBackground: true,
+                  margin: {
+                    top: "10mm",
+                    bottom: "35mm",
+                    left: "10mm",
+                    right: "10mm",
+                  },
+                  displayHeaderFooter: true,
+                  headerTemplate: '<div style="font-size:10px; text-align:center;"></div>',
+                  footerTemplate,
+                });
 
-            await browser.close();
+                await browser.close();
 
-            // Step 5: Send file as download
-            res.download(pdfPath, "productionHouse.pdf", (err) => {
-              if (err) {
-                console.error("Error sending PDF:", err);
+                // Step 5: Send file as download
+                res.download(pdfPath, "productionHouse.pdf", (err) => {
+                  if (err) {
+                    console.error("Error sending PDF:", err);
+                  }
+                  fs.unlink(pdfPath, (err) => {
+                    if (err) console.error("Error deleting PDF:", err);
+                  });
+                });
+
+              } catch (error) {
+                console.error("Error generating PDF:", error);
+                res.status(500).send("Error rendering or generating PDF.");
               }
-              fs.unlink(pdfPath, (err) => {
-                if (err) console.error("Error deleting PDF:", err);
-              });
-            });
-
-          } catch (error) {
-            console.error("Error generating PDF:", error);
-            res.status(500).send("Error rendering or generating PDF.");
-          }
+            }
+          );
         }
       );
     }
-  );
-  }
   );
 });
 
@@ -2705,32 +2705,32 @@ app.post("/payment", function (req, res) {
   // Moreover you can take more details from user
   // like Address, Name, etc from form
   stripe.customers
-      .create({
-          email: req.body.stripeEmail,
-          source: req.body.stripeToken,
-          name: "Germenn",
-          address: {
-              line1: "TC 9/4 Old MES colony",
-              postal_code: "452331",
-              city: "Indore",
-              state: "Madhya Pradesh",
-              country: "India"
-          }
-      })
-      .then((customer) => {
-          return stripe.charges.create({
-              amount: 2500, // Charging Rs 25
-              description: "Web Development Product",
-              currency: "INR",
-              customer: customer.id
-          });
-      })
-      .then((charge) => {
-          res.send("Success"); // If no error occurs
-      })
-      .catch((err) => {
-          res.send(err); // If some error occurs
+    .create({
+      email: req.body.stripeEmail,
+      source: req.body.stripeToken,
+      name: "Germenn",
+      address: {
+        line1: "TC 9/4 Old MES colony",
+        postal_code: "452331",
+        city: "Indore",
+        state: "Madhya Pradesh",
+        country: "India"
+      }
+    })
+    .then((customer) => {
+      return stripe.charges.create({
+        amount: 2500, // Charging Rs 25
+        description: "Web Development Product",
+        currency: "INR",
+        customer: customer.id
       });
+    })
+    .then((charge) => {
+      res.send("Success"); // If no error occurs
+    })
+    .catch((err) => {
+      res.send(err); // If some error occurs
+    });
 });
 
 // app.post('/api/unzer/paypage', async (req, res) => {
@@ -2858,6 +2858,8 @@ app.use("/userAdv", require("./src/routes/userAdv.route.js"));
 app.use("/jobs", require("./src/routes/jobs.route.js"));
 app.use("/address", require("./src/routes/address.route.js"));
 app.use("/faq", require("./src/routes/faq.route.js"));
+app.use("/coupontype", require("./src/routes/coupontype.route.js"));
+app.use("/coupon", require("./src/routes/coupon.route.js"));
 app.use("/role", require("./src/routes/role.route.js"));
 app.use("/setting", require("./src/routes/settings.route.js"));
 app.use("/impressum", require("./src/routes/impressum.route.js"));

@@ -5,14 +5,14 @@ const mysql = require('mysql2');
 // Database configuration
 const dbConfig = {
   // host: "217.154.8.230",
-  host: "localhost", 
-  user: "phpmyadmin",
-  password: "Dortmund@2106",
+  // host: "localhost", 
+  // user: "phpmyadmin",
+  // password: "Dortmund@2106",
+  // database: "Frisch",
+
+  user: "root",
+  password: "",
   database: "Frisch",
-  
-  // user: "root",
-  // password: "",
-  // database: "frisch_6",
   port: 3306,
   waitForConnections: true,
   connectionLimit: 10, // Keep multiple connections open

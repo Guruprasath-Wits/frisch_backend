@@ -58,6 +58,8 @@ app.use("/userAdv", require("./routes/userAdv.route.js"));
 app.use("/jobs", require("./routes/jobs.route.js"));
 app.use("/address", require("./routes/address.route.js"));
 app.use("/faq", require("./routes/faq.route.js"));
+app.use("/coupontype", require("./routes/coupontype.route.js"));
+app.use("/coupon", require("./routes/coupon.route.js"));
 app.use("/role", require("./routes/role.route.js"));
 app.use("/setting", require("./routes/settings.route.js"));
 app.use("/impressum", require("./routes/impressum.route.js"));
@@ -82,8 +84,8 @@ app.get("/label/pdf", async (req, res) => {
     const [orders_details] = await db.query("SELECT * FROM orders_details");
 
 
-   
-const htmlContent = `
+
+    const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -122,11 +124,11 @@ const htmlContent = `
 <body>
   <div class="page">
     ${orders
-      .map((order) => {
-        const matchingDetails = orders_details.filter(
-          (orders_detail) => orders_detail.order_id === order.order_id
-        );
-        return `
+        .map((order) => {
+          const matchingDetails = orders_details.filter(
+            (orders_detail) => orders_detail.order_id === order.order_id
+          );
+          return `
         <div class="cell">
           <div class="content">
             <strong>Order ID:</strong> ${order.order_id}
@@ -144,8 +146,8 @@ const htmlContent = `
           </div>
         </div>
         `;
-      })
-      .join("")}
+        })
+        .join("")}
   </div>
 </body>
 </html>
