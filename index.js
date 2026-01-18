@@ -2868,6 +2868,7 @@ app.use("/subscribe-orders", require("./src/routes/subscription.route.js"));
 app.use("/all_subscribe-orders", require("./src/routes/all_subscription.route.js"));
 app.use("/tax", require("./src/routes/tax.route.js"));
 app.use("/bottle", require("./src/routes/bottle.route.js"));
+app.use("/combo", require("./src/routes/combo.routes.js"));
 
 
 
