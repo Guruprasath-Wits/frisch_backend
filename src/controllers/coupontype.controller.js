@@ -65,6 +65,21 @@ exports.readById = (req, res) => {
 
 
 
+exports.renderList = (req, res) => {
+    coupontype.read((err, data) => {
+        if (err && err.kind !== "not_found") {
+            return res.status(500).send({
+                message: err.message || "Some error occurred while fetching the data.",
+            });
+        }
+        res.render("coupontype_list", {
+            coupontypes: data || []
+        });
+    });
+};
+
+
+
 exports.create = async (req, res) => {
     if (!validateRequestBody(req, res)) return;
 
@@ -77,18 +92,26 @@ exports.create = async (req, res) => {
 
 
 
-    coupontype.create(newCouponType, (err, data) => {
-        if (err) {
-            res.status(500).send({
-                message: err.message || "Some error occurred while creating the coupontype.",
-            });
-        } else {
-            res.send({
-                status: true,
-                message: "coupontype created successfully",
-                coupontype: data,
+    coupontype.findByType(newCouponType.type, (err, data) => {
+        if (!err) {
+            return res.status(400).send({
+                message: "Coupontype already exists with this name.",
             });
         }
+
+        coupontype.create(newCouponType, (err, data) => {
+            if (err) {
+                res.status(500).send({
+                    message: err.message || "Some error occurred while creating the coupontype.",
+                });
+            } else {
+                res.send({
+                    status: true,
+                    message: "coupontype created successfully",
+                    coupontype: data,
+                });
+            }
+        });
     });
 };
 

@@ -53,9 +53,18 @@ coupon.create = (newcoupon, result) => {
 
 
 coupon.edit = (id, updatedcoupon, result) => {
-    const query = "UPDATE coupon SET type = ?, description = ?, subtype = ?, couponcode = ?, user = ?, status = ? WHERE id = ?";
+    const query = "UPDATE coupon SET type = ?, description = ?, couponcode = ?, discount_percentage = ?, user_email = ?, from_date = ?, end_date = ? WHERE id = ?";
 
-    sql.query(query, [updatedcoupon.type, updatedcoupon.description, updatedcoupon.subtype, updatedcoupon.couponcode, updatedcoupon.user, updatedcoupon.status, id], (err, res) => {
+    sql.query(query, [
+        updatedcoupon.type,
+        updatedcoupon.description,
+        updatedcoupon.couponcode,
+        updatedcoupon.discount_percentage,
+        updatedcoupon.user_email,
+        updatedcoupon.from_date,
+        updatedcoupon.end_date,
+        id
+    ], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -69,7 +78,7 @@ coupon.edit = (id, updatedcoupon, result) => {
             return;
         }
 
-        console.log("updated coupon: ", { id: id, ...updatedcoupon});
+        console.log("updated coupon: ", { id: id, ...updatedcoupon });
         result(null, { id: id, ...updatedcoupon });
     });
 };
