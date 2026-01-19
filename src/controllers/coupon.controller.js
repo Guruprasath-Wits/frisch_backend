@@ -16,6 +16,39 @@ const validateRequestBody = (req, res) => {
     return true;
 };
 
+// Helper function to format dates (timezone-safe)
+const formatCouponDates = (coupon) => {
+    if (coupon.from_date) {
+        const fromDate = new Date(coupon.from_date);
+        const year = fromDate.getFullYear();
+        const month = String(fromDate.getMonth() + 1).padStart(2, '0');
+        const day = String(fromDate.getDate()).padStart(2, '0');
+        coupon.from_date = `${year}-${month}-${day}`;
+    }
+    if (coupon.end_date) {
+        const endDate = new Date(coupon.end_date);
+        const year = endDate.getFullYear();
+        const month = String(endDate.getMonth() + 1).padStart(2, '0');
+        const day = String(endDate.getDate()).padStart(2, '0');
+        coupon.end_date = `${year}-${month}-${day}`;
+    }
+    return coupon;
+};
+
+exports.renderList = (req, res) => {
+    coupon.read((err, data) => {
+        if (err && err.kind !== "not_found") {
+            return res.status(500).send({
+                message: err.message || "Some error occurred while fetching the data.",
+            });
+        }
+        res.render("coupon_list", {
+            coupons: data || []
+        });
+    });
+};
+
+
 exports.read = (req, res) => {
     if (!validateRequestBody(req, res)) return;
 
@@ -31,10 +64,13 @@ exports.read = (req, res) => {
                 });
             }
         } else {
+            // Format dates for all coupons
+            const formattedData = data.map(formatCouponDates);
+
             res.send({
                 status: true,
                 message: "Fetched Successfully",
-                coupon: data,
+                coupon: formattedData,
             });
         }
     });
@@ -58,10 +94,13 @@ exports.readById = (req, res) => {
                 });
             }
         } else {
+            // Format dates
+            const formattedData = formatCouponDates(data);
+
             res.send({
                 status: true,
                 message: "Fetched Successfully",
-                coupon: data,
+                coupon: formattedData,
             });
         }
     });
@@ -72,29 +111,15 @@ exports.readById = (req, res) => {
 exports.create = async (req, res) => {
     if (!validateRequestBody(req, res)) return;
 
-    const { type, status } = req.body;
-
-    if (type && !COUPON_TYPES.includes(type.toUpperCase())) {
-        return res.status(400).send({
-            message: `Invalid coupon type. Allowed values: ${COUPON_TYPES.join(', ')}`
-        });
-    }
-
-    if (status && !COUPON_STATUSES.includes(status.toUpperCase())) {
-        return res.status(400).send({
-            message: `Invalid coupon status. Allowed values: ${COUPON_STATUSES.join(', ')}`
-        });
-    }
-
 
     const newCoupon = {
+        couponcode: req.body.code || req.body.couponcode,
         type: req.body.type,
-        subtype: req.body.subtype,
+        discount_percentage: req.body.discount_percentage || null,
         description: req.body.description,
-        couponcode: req.body.couponcode,
-        user: req.body.user,
-        status: req.body.status
-
+        user_email: req.body.user_email || null,
+        from_date: req.body.from_date,
+        end_date: req.body.end_date
     };
 
 
@@ -119,27 +144,15 @@ exports.edit = (req, res) => {
     if (!validateRequestBody(req, res)) return;
 
     const couponId = req.params.id;
-    const { type, status } = req.body;
-
-    if (type && !COUPON_TYPES.includes(type.toUpperCase())) {
-        return res.status(400).send({
-            message: `Invalid coupon type. Allowed values: ${COUPON_TYPES.join(', ')}`
-        });
-    }
-
-    if (status && !COUPON_STATUSES.includes(status.toUpperCase())) {
-        return res.status(400).send({
-            message: `Invalid coupon status. Allowed values: ${COUPON_STATUSES.join(', ')}`
-        });
-    }
 
     const updatedcoupon = {
+        couponcode: req.body.code || req.body.couponcode,
         type: req.body.type,
-        subtype: req.body.subtype,
+        discount_percentage: req.body.discount_percentage || null,
         description: req.body.description,
-        couponcode: req.body.couponcode,
-        user: req.body.user,
-        status: req.body.status
+        user_email: req.body.user_email || null,
+        from_date: req.body.from_date,
+        end_date: req.body.end_date
     };
 
     coupon.edit(couponId, updatedcoupon, (err, data) => {

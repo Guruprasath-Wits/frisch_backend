@@ -10,6 +10,8 @@ router.get("/read", coupon.read);
 
 router.get("/read/:id", coupon.readById);
 
+router.get("/list", coupon.renderList);
+
 
 router.post("/delete/:id", coupon.delete);
 
