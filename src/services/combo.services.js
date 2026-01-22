@@ -22,13 +22,21 @@ async function createCombo(data) {
     INSERT INTO combo_packs (name, price, description, status, image, product_ids, discount_percentage)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
+
+    let productIds = data.product_ids;
+    if (Array.isArray(productIds)) {
+        productIds = productIds.join(',');
+    } else if (typeof productIds !== 'string') {
+        productIds = String(productIds);
+    }
+
     const params = [
         data.name,
         data.price,
         data.description,
         data.status,
         data.image,
-        JSON.stringify(data.product_ids),
+        productIds,
         data.discount_percentage
     ];
     const result = await query(sql, params);
@@ -41,13 +49,21 @@ async function updateCombo(id, data) {
     SET name = ?, price = ?, description = ?, status = ?, image = ?, product_ids = ?, discount_percentage = ?
     WHERE id = ?
   `;
+
+    let productIds = data.product_ids;
+    if (Array.isArray(productIds)) {
+        productIds = productIds.join(',');
+    } else if (typeof productIds !== 'string') {
+        productIds = String(productIds);
+    }
+
     const params = [
         data.name,
         data.price,
         data.description,
         data.status,
         data.image,
-        JSON.stringify(data.product_ids),
+        productIds,
         data.discount_percentage,
         id
     ];
