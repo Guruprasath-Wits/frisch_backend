@@ -5,7 +5,7 @@ const path = require('path');
 // Configure Multer for image upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/uploads/');
+        cb(null, 'src/uploads/combo/');
     },
     filename: (req, file, cb) => {
         cb(null, 'combo-' + Date.now() + path.extname(file.originalname));
@@ -39,7 +39,7 @@ async function getComboById(req, res, next) {
 
 async function createCombo(req, res, next) {
     try {
-        const imagePath = req.file ? '/uploads/' + req.file.filename : '';
+        const imagePath = req.file ? '/uploads/combo/' + req.file.filename : '';
         const comboData = {
             name: req.body.name,
             price: req.body.price,
@@ -70,7 +70,7 @@ async function updateCombo(req, res, next) {
             return res.status(404).json({ success: false, message: 'Combo not found' });
         }
 
-        const imagePath = req.file ? '/uploads/' + req.file.filename : (req.body.image || existingCombo.image);
+        const imagePath = req.file ? '/uploads/combo/' + req.file.filename : (req.body.image || existingCombo.image);
 
         const comboData = {
             name: req.body.name,
