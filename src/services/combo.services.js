@@ -24,10 +24,8 @@ async function createCombo(data) {
   `;
 
     let productIds = data.product_ids;
-    if (Array.isArray(productIds)) {
-        productIds = productIds.join(',');
-    } else if (typeof productIds !== 'string') {
-        productIds = String(productIds);
+    if (typeof productIds !== 'string') {
+        productIds = JSON.stringify(productIds);
     }
 
     const params = [
@@ -51,10 +49,8 @@ async function updateCombo(id, data) {
   `;
 
     let productIds = data.product_ids;
-    if (Array.isArray(productIds)) {
-        productIds = productIds.join(',');
-    } else if (typeof productIds !== 'string') {
-        productIds = String(productIds);
+    if (typeof productIds !== 'string') {
+        productIds = JSON.stringify(productIds);
     }
 
     const params = [

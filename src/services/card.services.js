@@ -70,10 +70,11 @@ card.create = (newcard, result) => {
     const user_id = newcard.user_id;
     const product_id = newcard.product_id;
     const quantity = newcard.quantity;
+    const is_combo = newcard.is_combo || 0; // Default to 0 (false)
 
     sql.query(
-        `SELECT * FROM cart WHERE user_id = ? AND product_id = ?`,
-        [user_id, product_id],
+        `SELECT * FROM cart WHERE user_id = ? AND product_id = ? AND is_combo = ?`,
+        [user_id, product_id, is_combo],
         (err, res) => {
             if (err) {
                 console.log("Error checking existence: ", err);
@@ -87,15 +88,18 @@ card.create = (newcard, result) => {
                 return;
             }
 
-            sql.query("INSERT INTO cart SET ?", newcard, (err, res) => {
+            // Ensure is_combo is in the object to be inserted
+            const cartItemToInsert = { ...newcard, is_combo: is_combo };
+
+            sql.query("INSERT INTO cart SET ?", cartItemToInsert, (err, res) => {
                 if (err) {
                     console.log("Error inserting product: ", err);
                     result(err, null);
                     return;
                 }
 
-                console.log("Product added to cart: ", { id: res.insertId, ...newcard });
-                result(null, { id: res.insertId, ...newcard });
+                console.log("Product added to cart: ", { id: res.insertId, ...cartItemToInsert });
+                result(null, { id: res.insertId, ...cartItemToInsert });
             });
         }
     );

@@ -524,6 +524,7 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/uploads/settings', express.static(path.join(__dirname, 'src/uploads/settings')));
 app.use('/uploads/products', express.static(path.join(__dirname, 'src/uploads/products')));
 app.use('/uploads/category', express.static(path.join(__dirname, 'src/uploads/category')));
+app.use('/uploads/combo', express.static(path.join(__dirname, 'src/uploads/combo')));
 
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
