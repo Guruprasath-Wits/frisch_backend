@@ -19,8 +19,8 @@ async function getComboById(id) {
 
 async function createCombo(data) {
     const sql = `
-    INSERT INTO combo_packs (name, price, description, status, image, product_ids, discount_percentage)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO combo_packs (name, price, description, status, image, product_ids, discount_percentage, nutritional_info, ingredients, availability, vat, pfand, nickname)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
     let productIds = data.product_ids;
@@ -35,7 +35,13 @@ async function createCombo(data) {
         data.status,
         data.image,
         productIds,
-        data.discount_percentage
+        data.discount_percentage,
+        data.nutritional_info,
+        data.ingredients,
+        data.availability,
+        data.vat,
+        data.pfand,
+        data.nickname
     ];
     const result = await query(sql, params);
     return { id: result.insertId, ...data };
@@ -44,7 +50,7 @@ async function createCombo(data) {
 async function updateCombo(id, data) {
     const sql = `
     UPDATE combo_packs 
-    SET name = ?, price = ?, description = ?, status = ?, image = ?, product_ids = ?, discount_percentage = ?
+    SET name = ?, price = ?, description = ?, status = ?, image = ?, product_ids = ?, discount_percentage = ?, nutritional_info = ?, ingredients = ?, availability = ?, vat = ?, pfand = ?, nickname = ?
     WHERE id = ?
   `;
 
@@ -61,6 +67,12 @@ async function updateCombo(id, data) {
         data.image,
         productIds,
         data.discount_percentage,
+        data.nutritional_info,
+        data.ingredients,
+        data.availability,
+        data.vat,
+        data.pfand,
+        data.nickname,
         id
     ];
     await query(sql, params);
