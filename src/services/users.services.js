@@ -70,7 +70,7 @@ User.create = (newUser, result) => {
 
 User.login = (email, result) => {
   sql.query(
-    "SELECT id, email, password, role_id FROM users WHERE email = ? AND status = 1",
+    "SELECT * FROM users WHERE email = ? AND status = 1",
     [email],
     (err, res) => {
       if (err) {

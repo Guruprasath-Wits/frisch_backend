@@ -416,11 +416,7 @@ exports.login = async (req, res) => {
       status: true,
       message: "Login successful",
       token: token,
-      user: {
-        id: data.id,
-        email: data.email,
-        role_id: data.role_id // Return role_id here
-      }
+      user: data // Return full user data including fname, lname, phone
     });
   });
 };
