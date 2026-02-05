@@ -2,14 +2,16 @@
 // const mysql = require('mysql2');
 const mysql = require('mysql2');
 
+console.error("!!! DB.JS LOADED - STARTING CONFIG !!!");
+
 // Database configuration
 const dbConfig = {
   // host: "217.154.8.230",
-  host: "localhost",
+  host: "127.0.0.1",
   database: "Frisch",
   // user: "phpmyadmin",
   // password: "Dortmund@2106",
-  
+
   user: "root",
   password: "",
   // database: "frisch_6",
@@ -18,6 +20,8 @@ const dbConfig = {
   connectionLimit: 10, // Keep multiple connections open
   queueLimit: 0
 };
+
+console.error('Using DB Config:', JSON.stringify(dbConfig, null, 2));
 
 // Create a persistent MySQL connection pool
 const pool = mysql.createPool(dbConfig);
