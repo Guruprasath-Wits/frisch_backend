@@ -47,7 +47,13 @@ async function createCombo(req, res, next) {
             status: req.body.status === '1' || req.body.status === true ? 1 : 0,
             image: imagePath,
             product_ids: req.body.product_ids ? JSON.parse(req.body.product_ids) : [],
-            discount_percentage: req.body.discount_percentage || 0
+            discount_percentage: req.body.discount_percentage || 0,
+            nutritional_info: req.body.nutritional_info || '',
+            ingredients: req.body.ingredients || '',
+            availability: req.body.availability || 'Available',
+            vat: req.body.vat || 0,
+            pfand: req.body.pfand || 0,
+            nickname: req.body.nickname || ''
         };
 
         const nameExists = await comboService.checkComboNameExists(comboData.name);
@@ -79,7 +85,13 @@ async function updateCombo(req, res, next) {
             status: req.body.status === '1' || req.body.status === true ? 1 : 0,
             image: imagePath,
             product_ids: req.body.product_ids ? JSON.parse(req.body.product_ids) : [],
-            discount_percentage: req.body.discount_percentage || 0
+            discount_percentage: req.body.discount_percentage || 0,
+            nutritional_info: req.body.nutritional_info || '',
+            ingredients: req.body.ingredients || '',
+            availability: req.body.availability || 'Available',
+            vat: req.body.vat || 0,
+            pfand: req.body.pfand || 0,
+            nickname: req.body.nickname || ''
         };
 
         const nameExists = await comboService.checkComboNameExists(comboData.name, req.params.id);

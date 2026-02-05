@@ -94,7 +94,8 @@ exports.create = async (req, res) => {
     const card1 = {
         user_id: req.body.user_id,
         product_id: req.body.product_id,
-        quantity:req.body.quantity
+        quantity: req.body.quantity,
+        is_combo: req.body.is_combo
     };
 
 

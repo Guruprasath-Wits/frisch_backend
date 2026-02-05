@@ -19,42 +19,13 @@ async function getComboById(id) {
 
 async function createCombo(data) {
     const sql = `
-    INSERT INTO combo_packs (name, price, description, status, image, product_ids, discount_percentage)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO combo_packs (name, price, description, status, image, product_ids, discount_percentage, nutritional_info, ingredients, availability, vat, pfand, nickname)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
     let productIds = data.product_ids;
-    if (Array.isArray(productIds)) {
-        productIds = productIds.join(',');
-    } else if (typeof productIds !== 'string') {
-        productIds = String(productIds);
-    }
-
-    const params = [
-        data.name,
-        data.price,
-        data.description,
-        data.status,
-        data.image,
-        productIds,
-        data.discount_percentage
-    ];
-    const result = await query(sql, params);
-    return { id: result.insertId, ...data };
-}
-
-async function updateCombo(id, data) {
-    const sql = `
-    UPDATE combo_packs 
-    SET name = ?, price = ?, description = ?, status = ?, image = ?, product_ids = ?, discount_percentage = ?
-    WHERE id = ?
-  `;
-
-    let productIds = data.product_ids;
-    if (Array.isArray(productIds)) {
-        productIds = productIds.join(',');
-    } else if (typeof productIds !== 'string') {
-        productIds = String(productIds);
+    if (typeof productIds !== 'string') {
+        productIds = JSON.stringify(productIds);
     }
 
     const params = [
@@ -65,6 +36,43 @@ async function updateCombo(id, data) {
         data.image,
         productIds,
         data.discount_percentage,
+        data.nutritional_info,
+        data.ingredients,
+        data.availability,
+        data.vat,
+        data.pfand,
+        data.nickname
+    ];
+    const result = await query(sql, params);
+    return { id: result.insertId, ...data };
+}
+
+async function updateCombo(id, data) {
+    const sql = `
+    UPDATE combo_packs 
+    SET name = ?, price = ?, description = ?, status = ?, image = ?, product_ids = ?, discount_percentage = ?, nutritional_info = ?, ingredients = ?, availability = ?, vat = ?, pfand = ?, nickname = ?
+    WHERE id = ?
+  `;
+
+    let productIds = data.product_ids;
+    if (typeof productIds !== 'string') {
+        productIds = JSON.stringify(productIds);
+    }
+
+    const params = [
+        data.name,
+        data.price,
+        data.description,
+        data.status,
+        data.image,
+        productIds,
+        data.discount_percentage,
+        data.nutritional_info,
+        data.ingredients,
+        data.availability,
+        data.vat,
+        data.pfand,
+        data.nickname,
         id
     ];
     await query(sql, params);
