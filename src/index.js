@@ -62,6 +62,8 @@ app.use("/role", require("./routes/role.route.js"));
 app.use("/setting", require("./routes/settings.route.js"));
 app.use("/impressum", require("./routes/impressum.route.js"));
 app.use("/orders", require("./routes/orders.route.js"));
+app.use("/coupontype", require("./routes/coupontype.route.js"));
+app.use("/coupon", require("./routes/coupon.route.js"));
 app.use("/cart", require("./routes/card.route.js"));
 app.use("/contactUs", require("./routes/contactUs.route.js"));
 app.use("/subscribe-orders", require("./routes/subscription.route.js"));

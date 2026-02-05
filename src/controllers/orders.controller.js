@@ -81,7 +81,11 @@ exports.create = async (req, res) => {
             zipcode: req.body.zipcode,
             ort: req.body.ort,
             status: req.body.status || null,
-            deliveryFee: req.body.deliveryFee
+            deliveryFee: req.body.deliveryFee,
+            couponCode: req.body.couponCode || null,
+            couponType: req.body.couponType || null,
+            discountAmount: req.body.discountAmount || null,
+            discountPercentage: req.body.discountPercentage || null,
         };
 
         const productDetails = JSON.parse(JSON.stringify(req.body.productDetails));

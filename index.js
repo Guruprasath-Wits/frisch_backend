@@ -2862,6 +2862,8 @@ app.use("/faq", require("./src/routes/faq.route.js"));
 app.use("/role", require("./src/routes/role.route.js"));
 app.use("/setting", require("./src/routes/settings.route.js"));
 app.use("/impressum", require("./src/routes/impressum.route.js"));
+app.use("/coupontype", require("./src/routes/coupontype.route.js"));
+app.use("/coupon", require("./src/routes/coupon.route.js"));
 app.use("/orders", require("./src/routes/orders.route.js"));
 app.use("/cart", require("./src/routes/card.route.js"));
 app.use("/contactUs", require("./src/routes/contactUs.route.js"));
