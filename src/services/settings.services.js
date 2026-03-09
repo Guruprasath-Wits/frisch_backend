@@ -33,7 +33,7 @@ setting.findById = (id, result) => {
             return;
         }
 
-        
+
         result({ kind: "not_found" }, null);
     });
 };
@@ -65,18 +65,19 @@ setting.edit = (id, updatedsetting, result) => {
             cancellation_policy = ?, 
             breaking_news = ?,
             webshop = ?,
-            telephone = ?
+            telephone = ?,
+            minimumorder = ?
         WHERE id = ?
     `;  // ✅ Removed the extra comma before `WHERE id = ?`
 
     sql.query(
         query,
         [
-            updatedsetting.company_name || "",  
-            updatedsetting.logo_img || "",     
-            updatedsetting.banner_img || "",   
+            updatedsetting.company_name || "",
+            updatedsetting.logo_img || "",
+            updatedsetting.banner_img || "",
             updatedsetting.description || "",
-            updatedsetting.weekend_fee || 0,   
+            updatedsetting.weekend_fee || 0,
             updatedsetting.weekday_fee || 0,
             updatedsetting.agb || "",
             updatedsetting.data_protection || "",
@@ -84,6 +85,7 @@ setting.edit = (id, updatedsetting, result) => {
             updatedsetting.breaking_news || "",
             updatedsetting.webshop || "",
             updatedsetting.telephone || "",
+            updatedsetting.minimumorder || "",
             id,  // ✅ Make sure `id` is in the last position for WHERE clause
         ],
         (err, res) => {
@@ -121,7 +123,7 @@ setting.delete = (id, result) => {
         }
 
         if (res.affectedRows === 0) {
-            
+
             const error = new Error("setting not found");
             console.log("error: ", error.message);
             result(error, null);
