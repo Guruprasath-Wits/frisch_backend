@@ -40,9 +40,9 @@ exports.read = (req, res) => {
 };
 
 exports.readById = (req, res) => {
-    const id = req.params.id;  
+    const id = req.params.id;
 
-    
+
     Category.findById(id, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
@@ -78,10 +78,10 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir); 
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname); 
+        cb(null, file.originalname);
     },
 });
 
@@ -117,8 +117,11 @@ exports.create = (req, res) => {
             category_name: req.body.category_name,
             category_type: req.body.category_type,
 
-            category_desc : req.body.category_desc,
+            category_desc: req.body.category_desc,
             category_img: req.file ? `/uploads/category/${req.file.filename}` : null,
+            delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
+            delivery_fee_weekend: req.body.delivery_fee_weekend || 0,
+            holiday_fee: req.body.holiday_fee || 0,
         };
 
         Category.create(category, (err, data) => {
@@ -155,8 +158,11 @@ exports.edit = (req, res) => {
             category_name: req.body.category_name,
             category_type: req.body.category_type,
 
-            category_desc : req.body.category_desc,
+            category_desc: req.body.category_desc,
             category_img: req.file ? `/uploads/category/${req.file.filename}` : req.body.category_img,
+            delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
+            delivery_fee_weekend: req.body.delivery_fee_weekend || 0,
+            holiday_fee: req.body.holiday_fee || 0,
         };
 
         Category.edit(categoryId, updatedCategory, (err, data) => {

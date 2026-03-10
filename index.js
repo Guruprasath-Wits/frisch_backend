@@ -2851,6 +2851,7 @@ app.post("/payment", function (req, res) {
 app.use("/admin", require("./src/routes/admin.route.js"));
 app.use("/users", require("./src/routes/users.route.js"));
 app.use("/category", require("./src/routes/category.route.js"));
+app.use("/main-category", require("./src/routes/main_category.route.js"));
 app.use("/product", require("./src/routes/product.route.js"));
 app.use("/notifications", require("./src/routes/notification.route.js"));
 app.use("/sampleOrder", require("./src/routes/sampleorder.route.js"));
@@ -2872,6 +2873,7 @@ app.use("/all_subscribe-orders", require("./src/routes/all_subscription.route.js
 app.use("/tax", require("./src/routes/tax.route.js"));
 app.use("/bottle", require("./src/routes/bottle.route.js"));
 app.use("/combo", require("./src/routes/combo.routes.js"));
+app.use("/holiday", require("./src/routes/holiday.route.js"));
 
 
 

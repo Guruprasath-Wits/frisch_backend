@@ -53,9 +53,18 @@ Category.create = (newCategory, result) => {
 
 
 Category.edit = (id, updatedCategory, result) => {
-    const query = "UPDATE category SET category_name = ?,category_type = ?,category_desc = ?, category_img = ? WHERE id = ?";
+    const query = "UPDATE category SET category_name = ?,category_type = ?,category_desc = ?, category_img = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ? WHERE id = ?";
 
-    sql.query(query, [updatedCategory.category_name, updatedCategory.category_type, updatedCategory.category_desc, updatedCategory.category_img, id], (err, res) => {
+    sql.query(query, [
+        updatedCategory.category_name,
+        updatedCategory.category_type,
+        updatedCategory.category_desc,
+        updatedCategory.category_img,
+        updatedCategory.delivery_fee_weekday,
+        updatedCategory.delivery_fee_weekend,
+        updatedCategory.holiday_fee,
+        id
+    ], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
