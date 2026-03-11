@@ -122,6 +122,7 @@ exports.create = (req, res) => {
             delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
             delivery_fee_weekend: req.body.delivery_fee_weekend || 0,
             holiday_fee: req.body.holiday_fee || 0,
+            min_delivery_charge: req.body.min_delivery_charge || 0,
         };
 
         Category.create(category, (err, data) => {
@@ -163,6 +164,7 @@ exports.edit = (req, res) => {
             delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
             delivery_fee_weekend: req.body.delivery_fee_weekend || 0,
             holiday_fee: req.body.holiday_fee || 0,
+            min_delivery_charge: req.body.min_delivery_charge || 0,
         };
 
         Category.edit(categoryId, updatedCategory, (err, data) => {
