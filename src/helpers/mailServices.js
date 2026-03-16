@@ -254,21 +254,21 @@ exports.orderConfirmMail = async (orderData, productDetails, userData) => {
       },
       tls: { rejectUnauthorized: false },
     });
-const formatToLocalDate = (dateString) => {
-  if (!dateString) return "-";
+    const formatToLocalDate = (dateString) => {
+      if (!dateString) return "-";
 
-  const date = new Date(dateString);
+      const date = new Date(dateString);
 
-  const day = ("0" + date.getDate()).slice(-2);
-  const month = ("0" + (date.getMonth() + 1)).slice(-2);
-  const year = date.getFullYear();
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
 
-  return `${day}-${month}-${year}`;
-};
+      return `${day}-${month}-${year}`;
+    };
 
 
-const deliveryDate = formatToLocalDate(orderData.delivery_date);
-console.log("Deliver Date is", deliveryDate);
+    const deliveryDate = formatToLocalDate(orderData.delivery_date);
+    console.log("Deliver Date is", deliveryDate);
 
 
     // Fees & totals
@@ -556,7 +556,7 @@ exports.orderDeleteMail = async (userData) => {
   }
 };
 
-exports.orderDeliveryMail = async (orderData, userData) => { 
+exports.orderDeliveryMail = async (orderData, userData) => {
   try {
     console.log("User Data:", userData);
 
@@ -576,7 +576,7 @@ exports.orderDeliveryMail = async (orderData, userData) => {
     const mailOptions = {
       from: '"Frisch für Sie" <info@frischfuersie.de>',
       to: userData.email,  // ✅ real recipient
-      subject: "Lieferung erfolgreich: Ihre süße Bestellung ist angekommen!",
+      subject: "Lieferung erfolgreich: Ihre Bestellung ist angekommen!",
       html: `
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333;">
   <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 20px;">
@@ -585,7 +585,7 @@ exports.orderDeliveryMail = async (orderData, userData) => {
     </div><br>
 
     <h2 style="color:#d9534f; text-align:left; margin: 0 0 10px 0;">
-      Lieferung erfolgreich: Ihre süße Bestellung ist angekommen!
+      Lieferung erfolgreich: Ihre Bestellung ist angekommen!
     </h2>
 
     <p style="text-align: left; font-family: Arial, sans-serif; font-size: 16px;">Hallo ${userData.username},</p>
@@ -594,7 +594,7 @@ exports.orderDeliveryMail = async (orderData, userData) => {
       Ihre aktuelle Bestellung bei Frisch für Sie, <strong>${orderData.orderId}</strong>, wurde erfolgreich zugestellt.
     </p>
     <p style="text-align: justify; font-family: Arial, sans-serif; font-size: 15px;">
-      Wir wissen es sehr zu schätzen, dass Sie bei uns eingekauft haben. Jeder Bissen wird mit Liebe und den besten Zutaten zubereitet, und wir freuen uns, dass unsere Leckereien nun bei Ihnen angekommen sind.
+      Wir wissen es sehr zu schätzen, dass Sie bei uns eingekauft haben.
     </p>
     <p style="text-align: justify; font-family: Arial, sans-serif; font-size: 15px;">
       Haben Sie Fragen oder Feedback? Sollten Sie Fragen zu Ihrer Bestellung oder anderen Anliegen haben, zögern Sie bitte nicht, auf diese E-Mail zu antworten oder unser Hilfecenter zu besuchen:
@@ -616,7 +616,7 @@ exports.orderDeliveryMail = async (orderData, userData) => {
         <a href="#"><img src="https://api.frischfuersie.de/uploads/settings/tik-tok.png" alt="Tik Tok" width="30"></a>
       </div>
       <br>
-      <p style="text-align: center; font-size: 15px;">&copy; 2025 Frisch für Sie.</p>
+      <p style="text-align: center; font-size: 15px;">&copy; 2026 Frisch für Sie.</p>
     </div>
   </div>
 </body>

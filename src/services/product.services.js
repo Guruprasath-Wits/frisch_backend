@@ -3,7 +3,7 @@ const sql = require("../helpers/db.js");
 const Product = {};
 
 Product.read = (callback) => {
-    sql.query("SELECT * FROM product", (err, results) => {
+    sql.query("SELECT product.*, category.min_delivery_charge, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id", (err, results) => {
         if (err) {
             console.log("error:", err);
             callback(err, null);
@@ -20,7 +20,7 @@ Product.read = (callback) => {
 };
 
 Product.findById = (id, result) => {
-    sql.query(`SELECT * FROM product WHERE id = ?`, [id], (err, res) => {
+    sql.query(`SELECT product.*, category.min_delivery_charge, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id WHERE product.id = ?`, [id], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
@@ -67,7 +67,7 @@ Product.edit = (id, updatedProduct, result) => {
     }
 
     sql.query(
-        "UPDATE product SET product_name = ?, nickname = ?, product_status = ?, product_img = ?, category_id = ?, `desc` = ?, price = ?, ingredients = ?, weight = ?, nutri_inform = ?, status = ?, availability = ?, pfand = ?, tax = ? WHERE id = ?",
+        "UPDATE product SET product_name = ?, nickname = ?, product_status = ?, product_img = ?, category_id = ?, `desc` = ?, price = ?, ingredients = ?, weight = ?, nutri_inform = ?, status = ?, availability = ?, pfand = ?, tax = ?, is_18_plus = ? WHERE id = ?",
         [
             updatedProduct.product_name,
             updatedProduct.nickname,
@@ -83,6 +83,7 @@ Product.edit = (id, updatedProduct, result) => {
             availability,
             updatedProduct.pfand,
             updatedProduct.tax,
+            updatedProduct.is_18_plus,
             id,
         ],
         (err, res) => {

@@ -29,6 +29,7 @@ Holiday.create = (newHoliday, result) => {
 
 Holiday.delete = (id, result) => {
     const query = "DELETE FROM holiday WHERE id = ?";
+    console.log("Executing SQL:", query, "with ID:", id);
 
     sql.query(query, [id], (err, res) => {
         if (err) {

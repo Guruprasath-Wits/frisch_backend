@@ -58,8 +58,8 @@ const dbPRomise = dbConfig.promise()
 // Middleware configurations
 const corsOptions = {
   origin: "*",
-  methods: ["GET", "POST", "PUT"],
-  allowedHeaders: ["Content-Type"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: '50mb' }));

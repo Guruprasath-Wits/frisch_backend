@@ -70,6 +70,7 @@ exports.create = (req, res) => {
             availability: req.body.availability,
             pfand: req.body.pfand,
             tax: req.body.tax,
+            is_18_plus: req.body.is_18_plus ? parseInt(req.body.is_18_plus) : 0,
         };
 
         Product.create(product, (err, data) => {
@@ -119,6 +120,7 @@ exports.edit = (req, res) => {
             availability: req.body.availability,
             pfand: req.body.pfand,
             tax: req.body.tax,
+            is_18_plus: req.body.is_18_plus ? parseInt(req.body.is_18_plus) : 0,
         };
 
         // Call the Product.edit method with updated data

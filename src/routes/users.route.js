@@ -19,6 +19,7 @@ router.post('/updatePass', users.updatePass);
 
 router.post('/loginapp', users.loginapp);
 router.put('/status/:id', users.updateUserStatus);
+router.post('/verifyAge/:id', users.verifyAge);
 
 
 module.exports = router;

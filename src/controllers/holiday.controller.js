@@ -44,9 +44,11 @@ exports.create = (req, res) => {
 
 exports.delete = (req, res) => {
     const id = req.params.id;
+    console.log("Attempting to delete holiday with ID:", id);
 
     Holiday.delete(id, (err, data) => {
         if (err) {
+            console.error("Error deleting holiday:", err);
             if (err.message === "Holiday not found") {
                 return res.status(404).send({
                     message: `Holiday not found with id ${id}.`

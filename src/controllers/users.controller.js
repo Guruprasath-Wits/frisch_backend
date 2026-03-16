@@ -528,7 +528,9 @@ exports.edit = async (req, res) => {
       role_id: resolvedRoleId,   // ✅ always update role_id as well
       status: status,
       floor: req.body.floor || null,
-      lift_availability: req.body.lift_availability || null
+      floor: req.body.floor || null,
+      lift_availability: req.body.lift_availability || null,
+      is_age_verified: req.body.is_age_verified !== undefined ? req.body.is_age_verified : undefined
     };
 
     // Remove undefined fields
@@ -610,3 +612,17 @@ exports.loginapp = async (req, res) => {
   });
 };
 
+exports.verifyAge = (req, res) => {
+  const userId = req.params.id;
+
+  User.update(userId, { is_age_verified: 1 }, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        return res.status(404).send({ message: `User with id ${userId} not found.` });
+      } else {
+        return res.status(500).send({ message: "Error updating age verification status." });
+      }
+    }
+    res.send({ status: true, message: "Age verified successfully.", is_age_verified: 1 });
+  });
+};

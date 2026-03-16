@@ -20,17 +20,17 @@ orders.read = (callback) => {
 };
 
 orders.getUserById = async (userId) => {
-  return new Promise((resolve, reject) => {
-    sql.query(
-      "SELECT username AS name, email FROM users WHERE id = ?",
-      [userId],
-      (err, results) => {
-        if (err) return reject(err);
-        if (!results || results.length === 0) return resolve(null);
-        resolve(results[0]);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        sql.query(
+            "SELECT username AS name, email FROM users WHERE id = ?",
+            [userId],
+            (err, results) => {
+                if (err) return reject(err);
+                if (!results || results.length === 0) return resolve(null);
+                resolve(results[0]);
+            }
+        );
+    });
 };
 
 
@@ -183,7 +183,7 @@ orders.create = (orderData, productDetails, iban) => {
 };
 
 
-orders.updatePaymentStatus = (order_id, status,orderStatus) => {
+orders.updatePaymentStatus = (order_id, status, orderStatus) => {
     return new Promise((resolve, reject) => {
         sql.query(
             "UPDATE orders SET payment_status = ?, status = ? WHERE order_id = ?",
@@ -221,7 +221,7 @@ orders.updatePaymentStatus = (order_id, status,orderStatus) => {
                             item.product_name,
                             item.quantity,
                             item.price
-                            
+
                         ]));
                         sql.query("SELECT * FROM users WHERE id = ?", [order.user_id], async (userErr, userRows) => {
                             if (userErr || !userRows || userRows.length === 0) {
@@ -229,7 +229,7 @@ orders.updatePaymentStatus = (order_id, status,orderStatus) => {
                                 return resolve({ order_id, status });
                             }
                             const user = userRows[0];
-                          
+
                             // You may need to adjust the mail function and its arguments as per your actual implementation
                             try {
                                 const mailServices = require('../helpers/mailServices.js');
@@ -333,141 +333,141 @@ orders.BagUpdate = (id, updatedorders, result) => {
 
 
 orders.storeProcessedOrders = async (orders) => {
-  if (!Array.isArray(orders) || orders.length === 0) {
-    console.error('No orders to process');
-    return { insertedCount: 0, skippedCount: 0 };
-  }
+    if (!Array.isArray(orders) || orders.length === 0) {
+        console.error('No orders to process');
+        return { insertedCount: 0, skippedCount: 0 };
+    }
 
-  const checkIfOrderExists = (order_id) => {
-    return new Promise((resolve, reject) => {
-      const checkQuery = 'SELECT COUNT(*) AS count FROM processed_orders WHERE order_id = ?';
-      sql.query(checkQuery, [order_id], (err, results) => {
-        if (err) return reject(err);
-        resolve(results[0].count > 0);
-      });
-    });
-  };
+    const checkIfOrderExists = (order_id) => {
+        return new Promise((resolve, reject) => {
+            const checkQuery = 'SELECT COUNT(*) AS count FROM processed_orders WHERE order_id = ?';
+            sql.query(checkQuery, [order_id], (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0].count > 0);
+            });
+        });
+    };
 
-  // Format only the date part (YYYY-MM-DD)
-  const formatDate = (date) => {
-    if (!date) return null;
-    const d = new Date(date);
-    return d.toISOString().slice(0, 10); // 'YYYY-MM-DD'
-  };
+    // Format only the date part (YYYY-MM-DD)
+    const formatDate = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        return d.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    };
 
-  // Format full datetime (YYYY-MM-DD HH:mm:ss)
-  const formatDateTime = (date) => {
-    if (!date) return null;
-    const d = new Date(date);
-    return d.toISOString().slice(0, 19).replace('T', ' ');
-  };
+    // Format full datetime (YYYY-MM-DD HH:mm:ss)
+    const formatDateTime = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+        return d.toISOString().slice(0, 19).replace('T', ' ');
+    };
 
-  let insertedCount = 0;
-  let skippedCount = 0;
+    let insertedCount = 0;
+    let skippedCount = 0;
 
- // Sort orders by index_id in ascending order
-orders.sort((a, b) => a.index_id - b.index_id);
+    // Sort orders by index_id in ascending order
+    orders.sort((a, b) => a.index_id - b.index_id);
 
-const promises = orders.map(async (order) => {
-  const {
-    id, order_id, user_id, delivery_date, price, tips, address,
-    contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
-    driver_id, created_at, lat, lng, payment_status, zipcode,
-    zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
-  } = order;
+    const promises = orders.map(async (order) => {
+        const {
+            id, order_id, user_id, delivery_date, price, tips, address,
+            contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
+            driver_id, created_at, lat, lng, payment_status, zipcode,
+            zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes, is_age_verified
+        } = order;
 
-  const exists = await checkIfOrderExists(order_id);
-  if (exists) {
-    console.log(`Skipping duplicate order_id: ${order_id}`);
-    skippedCount++;
-    return;
-  }
+        const exists = await checkIfOrderExists(order_id);
+        if (exists) {
+            console.log(`Skipping duplicate order_id: ${order_id}`);
+            skippedCount++;
+            return;
+        }
 
-  const sqlQuery = `
+        const sqlQuery = `
     INSERT INTO processed_orders (
       id, order_id, user_id, delivery_date, price, tips, address,
       contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
       driver_id, created_at, lat, lng, payment_status, zipcode,
-      zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
+      zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes, is_age_verified
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const values = [
-    id, order_id, user_id, formatDate(delivery_date), price, tips, address,
-    contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
-    driver_id, formatDateTime(created_at), lat, lng, payment_status, zipcode,
-    zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
-  ];
+        const values = [
+            id, order_id, user_id, formatDate(delivery_date), price, tips, address,
+            contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
+            driver_id, formatDateTime(created_at), lat, lng, payment_status, zipcode,
+            zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes, is_age_verified || 0
+        ];
 
-  return new Promise((resolve, reject) => {
-    sql.query(sqlQuery, values, (err, result) => {
-      if (err) {
-        console.error(`Error inserting order with ID ${order_id}:`, err);
-        return reject(err);
-      }
-      insertedCount++;
-      resolve(result);
+        return new Promise((resolve, reject) => {
+            sql.query(sqlQuery, values, (err, result) => {
+                if (err) {
+                    console.error(`Error inserting order with ID ${order_id}:`, err);
+                    return reject(err);
+                }
+                insertedCount++;
+                resolve(result);
+            });
+        });
     });
-  });
-});
 
 
-// const promises = orders.map(async (order, i) => {
-//   const {
-//     id, order_id, user_id, delivery_date, price, tips, address,
-//     contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
-//     driver_id, created_at, lat, lng, payment_status, zipcode,
-//     zusätzliche_tüte, ort, driverName, distanceKm, estimatedTimeInMinutes
-//   } = order;
+    // const promises = orders.map(async (order, i) => {
+    //   const {
+    //     id, order_id, user_id, delivery_date, price, tips, address,
+    //     contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
+    //     driver_id, created_at, lat, lng, payment_status, zipcode,
+    //     zusätzliche_tüte, ort, driverName, distanceKm, estimatedTimeInMinutes
+    //   } = order;
 
-//   const index_id = i + 1; // <-- incrementing index_id starting from 1
+    //   const index_id = i + 1; // <-- incrementing index_id starting from 1
 
-//   const exists = await checkIfOrderExists(order_id);
-//   if (exists) {
-//     console.log(`Skipping duplicate order_id: ${order_id}`);
-//     skippedCount++;
-//     return;
-//   }
+    //   const exists = await checkIfOrderExists(order_id);
+    //   if (exists) {
+    //     console.log(`Skipping duplicate order_id: ${order_id}`);
+    //     skippedCount++;
+    //     return;
+    //   }
 
-//   const sqlQuery = `
-//     INSERT INTO processed_orders (
-//       id, order_id, user_id, delivery_date, price, tips, address,
-//       contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
-//       driver_id, created_at, lat, lng, payment_status, zipcode,
-//       zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
-//     )
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-//   `;
+    //   const sqlQuery = `
+    //     INSERT INTO processed_orders (
+    //       id, order_id, user_id, delivery_date, price, tips, address,
+    //       contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
+    //       driver_id, created_at, lat, lng, payment_status, zipcode,
+    //       zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
+    //     )
+    //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    //   `;
 
-//   const values = [
-//     id, order_id, user_id, formatDate(delivery_date), price, tips, address,
-//     contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
-//     driver_id, formatDateTime(created_at), lat, lng, payment_status, zipcode,
-//     zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
-//   ];
+    //   const values = [
+    //     id, order_id, user_id, formatDate(delivery_date), price, tips, address,
+    //     contact, instruction, status, gro_bag, mitt_bag, bagu_bag,
+    //     driver_id, formatDateTime(created_at), lat, lng, payment_status, zipcode,
+    //     zusätzliche_tüte, ort, index_id, driverName, distanceKm, estimatedTimeInMinutes
+    //   ];
 
-//   return new Promise((resolve, reject) => {
-//     sql.query(sqlQuery, values, (err, result) => {
-//       if (err) {
-//         console.error(`Error inserting order with ID ${order_id}:`, err);
-//         return reject(err);
-//       }
-//       insertedCount++;
-//       resolve(result);
-//     });
-//   });
-// });
+    //   return new Promise((resolve, reject) => {
+    //     sql.query(sqlQuery, values, (err, result) => {
+    //       if (err) {
+    //         console.error(`Error inserting order with ID ${order_id}:`, err);
+    //         return reject(err);
+    //       }
+    //       insertedCount++;
+    //       resolve(result);
+    //     });
+    //   });
+    // });
 
 
-  try {
-    await Promise.all(promises);
-    console.log('All processed orders have been stored successfully');
-    return { insertedCount, skippedCount };
-  } catch (err) {
-    console.error('Error storing processed orders:', err);
-    throw err;
-  }
+    try {
+        await Promise.all(promises);
+        console.log('All processed orders have been stored successfully');
+        return { insertedCount, skippedCount };
+    } catch (err) {
+        console.error('Error storing processed orders:', err);
+        throw err;
+    }
 };
 
 
@@ -476,38 +476,38 @@ const promises = orders.map(async (order) => {
 
 
 orders.assignDriverToOrders = (driverId, orderIds, indexId, result) => {
-  if (!Array.isArray(orderIds) || orderIds.length === 0) {
-    return result({ kind: "invalid_data", message: "Order IDs must be a non-empty array." }, null);
-  }
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+        return result({ kind: "invalid_data", message: "Order IDs must be a non-empty array." }, null);
+    }
 
-  const placeholders = orderIds.map(() => "?").join(", ");
-  const query = `
+    const placeholders = orderIds.map(() => "?").join(", ");
+    const query = `
     UPDATE orders 
     SET driver_id = ?, status = 'Assigned', index_id = ? 
     WHERE id IN (${placeholders})
   `;
 
-  const queryValues = [driverId, indexId, ...orderIds];
+    const queryValues = [driverId, indexId, ...orderIds];
 
-  sql.query(query, queryValues, (err, res) => {
-    if (err) {
-      console.error("Error while updating orders:", err);
-      result(err, null);
-      return;
-    }
+    sql.query(query, queryValues, (err, res) => {
+        if (err) {
+            console.error("Error while updating orders:", err);
+            result(err, null);
+            return;
+        }
 
-    if (res.affectedRows === 0) {
-      result({ kind: "not_found", message: "No orders were found to update." }, null);
-      return;
-    }
+        if (res.affectedRows === 0) {
+            result({ kind: "not_found", message: "No orders were found to update." }, null);
+            return;
+        }
 
-    result(null, {
-      driverId,
-      orderIds,
-      indexId,
-      updatedRows: res.affectedRows,
+        result(null, {
+            driverId,
+            orderIds,
+            indexId,
+            updatedRows: res.affectedRows,
+        });
     });
-  });
 };
 
 
