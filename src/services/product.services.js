@@ -3,7 +3,7 @@ const sql = require("../helpers/db.js");
 const Product = {};
 
 Product.read = (callback) => {
-    sql.query("SELECT product.*, category.min_delivery_charge, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id", (err, results) => {
+    sql.query("SELECT product.*, category.min_delivery_charge, category.delivery_fee_weekday, category.delivery_fee_weekend, category.holiday_fee, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id", (err, results) => {
         if (err) {
             console.log("error:", err);
             callback(err, null);
@@ -20,7 +20,7 @@ Product.read = (callback) => {
 };
 
 Product.findById = (id, result) => {
-    sql.query(`SELECT product.*, category.min_delivery_charge, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id WHERE product.id = ?`, [id], (err, res) => {
+    sql.query(`SELECT product.*, category.min_delivery_charge, category.delivery_fee_weekday, category.delivery_fee_weekend, category.holiday_fee, category.category_type FROM product LEFT JOIN category ON product.category_id = category.id WHERE product.id = ?`, [id], (err, res) => {
         if (err) {
             console.log("error: ", err);
             result(err, null);
