@@ -11,9 +11,9 @@ const dbConfig = {
   database: "Frisch",
   user: "phpmyadmin",
   password: "Dortmund@2106",
-
-  // user: "root",
-  // password: "",
+  // root",
+  //   password: "",
+  // user: "
   // database: "frisch_6",
   port: 3306,
   waitForConnections: true,

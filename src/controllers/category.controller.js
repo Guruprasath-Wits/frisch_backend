@@ -64,7 +64,6 @@ exports.create = (req, res) => {
     const category = {
         category_name: req.body.category_name,
         category_type: req.body.category_type,
-        category_desc: req.body.category_desc,
         category_img: req.file ? `/uploads/category/${req.file.filename}` : null,
         delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
         delivery_fee_weekend: req.body.delivery_fee_weekend || 0,
@@ -95,7 +94,6 @@ exports.edit = (req, res) => {
     const updatedCategory = {
         category_name: req.body.category_name,
         category_type: req.body.category_type,
-        category_desc: req.body.category_desc,
         category_img: req.file ? `/uploads/category/${req.file.filename}` : req.body.category_img,
         delivery_fee_weekday: req.body.delivery_fee_weekday || 0,
         delivery_fee_weekend: req.body.delivery_fee_weekend || 0,

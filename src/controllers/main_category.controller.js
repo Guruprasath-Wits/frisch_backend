@@ -63,7 +63,10 @@ exports.create = (req, res) => {
 
     const category = {
         category_name: req.body.category_name,
-        category_desc: req.body.category_desc,
+        delivery_fee_weekday: req.body.delivery_fee_weekday,
+        delivery_fee_weekend: req.body.delivery_fee_weekend,
+        holiday_fee: req.body.holiday_fee,
+        min_delivery_charge: req.body.min_delivery_charge,
     };
 
     MainCategory.create(category, (err, data) => {
@@ -88,7 +91,10 @@ exports.edit = (req, res) => {
 
     const updatedCategory = {
         category_name: req.body.category_name,
-        category_desc: req.body.category_desc,
+        delivery_fee_weekday: req.body.delivery_fee_weekday,
+        delivery_fee_weekend: req.body.delivery_fee_weekend,
+        holiday_fee: req.body.holiday_fee,
+        min_delivery_charge: req.body.min_delivery_charge,
     };
 
     MainCategory.edit(categoryId, updatedCategory, (err, data) => {
