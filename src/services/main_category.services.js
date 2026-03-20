@@ -51,31 +51,72 @@ MainCategory.create = (newCategory, result) => {
 };
 
 MainCategory.edit = (id, updatedCategory, result) => {
-    const query = "UPDATE main_category SET category_name = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ?, min_delivery_charge = ? WHERE id = ?";
-
-    sql.query(query, [
-        updatedCategory.category_name,
-        updatedCategory.delivery_fee_weekday,
-        updatedCategory.delivery_fee_weekend,
-        updatedCategory.holiday_fee,
-        updatedCategory.min_delivery_charge,
-        id
-    ], (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(err, null);
+    // First, get the current name of the main category to find its sub-categories
+    sql.query("SELECT category_name FROM main_category WHERE id = ?", [id], (findErr, findRes) => {
+        if (findErr) {
+            console.log("error: ", findErr);
+            result(findErr, null);
             return;
         }
 
-        if (res.affectedRows === 0) {
-            const error = new Error("Main Category not found");
-            console.log("error: ", error.message);
-            result(error, null);
+        if (findRes.length === 0) {
+            result({ kind: "not_found" }, null);
             return;
         }
 
-        console.log("updated main category: ", { id: id, ...updatedCategory });
-        result(null, { id: id, ...updatedCategory });
+        const oldCategoryName = findRes[0].category_name;
+
+        const query = "UPDATE main_category SET category_name = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ?, min_delivery_charge = ? WHERE id = ?";
+
+        sql.query(query, [
+            updatedCategory.category_name,
+            updatedCategory.delivery_fee_weekday,
+            updatedCategory.delivery_fee_weekend,
+            updatedCategory.holiday_fee,
+            updatedCategory.min_delivery_charge,
+            id
+        ], (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(err, null);
+                return;
+            }
+
+            if (res.affectedRows === 0) {
+                const error = new Error("Main Category not found");
+                console.log("error: ", error.message);
+                result(error, null);
+                return;
+            }
+
+            // Sync changes to the category table (Sub-Categories)
+            const updateSubCategoriesQuery = `
+                UPDATE category 
+                SET category_type = ?, 
+                    delivery_fee_weekday = ?, 
+                    delivery_fee_weekend = ?, 
+                    holiday_fee = ?, 
+                    min_delivery_charge = ? 
+                WHERE category_type = ?`;
+
+            sql.query(updateSubCategoriesQuery, [
+                updatedCategory.category_name,
+                updatedCategory.delivery_fee_weekday,
+                updatedCategory.delivery_fee_weekend,
+                updatedCategory.holiday_fee,
+                updatedCategory.min_delivery_charge,
+                oldCategoryName
+            ], (subErr, subRes) => {
+                if (subErr) {
+                    console.log("Error updating sub-categories:", subErr);
+                } else {
+                    console.log(`Updated ${subRes.affectedRows} sub-categories for main category: ${updatedCategory.category_name}`);
+                }
+
+                console.log("updated main category: ", { id: id, ...updatedCategory });
+                result(null, { id: id, ...updatedCategory });
+            });
+        });
     });
 };
 
