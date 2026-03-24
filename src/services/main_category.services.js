@@ -66,14 +66,20 @@ MainCategory.edit = (id, updatedCategory, result) => {
 
         const oldCategoryName = findRes[0].category_name;
 
+        // Ensure numeric values are properly handled
+        const weekday_fee = parseFloat(updatedCategory.delivery_fee_weekday) || 0;
+        const weekend_fee = parseFloat(updatedCategory.delivery_fee_weekend) || 0;
+        const holiday_fee = parseFloat(updatedCategory.holiday_fee) || 0;
+        const min_charge = parseFloat(updatedCategory.min_delivery_charge) || 0;
+
         const query = "UPDATE main_category SET category_name = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ?, min_delivery_charge = ? WHERE id = ?";
 
         sql.query(query, [
             updatedCategory.category_name,
-            updatedCategory.delivery_fee_weekday,
-            updatedCategory.delivery_fee_weekend,
-            updatedCategory.holiday_fee,
-            updatedCategory.min_delivery_charge,
+            weekday_fee,
+            weekend_fee,
+            holiday_fee,
+            min_charge,
             id
         ], (err, res) => {
             if (err) {
@@ -90,6 +96,7 @@ MainCategory.edit = (id, updatedCategory, result) => {
             }
 
             // Sync changes to the category table (Sub-Categories)
+            // Use TRIM to handle potential whitespace issues in the database
             const updateSubCategoriesQuery = `
                 UPDATE category 
                 SET category_type = ?, 
@@ -97,23 +104,25 @@ MainCategory.edit = (id, updatedCategory, result) => {
                     delivery_fee_weekend = ?, 
                     holiday_fee = ?, 
                     min_delivery_charge = ? 
-                WHERE category_type = ?`;
+                WHERE TRIM(category_type) = TRIM(?)`;
 
             sql.query(updateSubCategoriesQuery, [
                 updatedCategory.category_name,
-                updatedCategory.delivery_fee_weekday,
-                updatedCategory.delivery_fee_weekend,
-                updatedCategory.holiday_fee,
-                updatedCategory.min_delivery_charge,
+                weekday_fee,
+                weekend_fee,
+                holiday_fee,
+                min_charge,
                 oldCategoryName
             ], (subErr, subRes) => {
                 if (subErr) {
-                    console.log("Error updating sub-categories:", subErr);
+                    console.log("Error updating sub-categories in sync:", subErr);
+                    // We don't return an error here so the main update still counts as success,
+                    // but on live this will now be visible in the console/logs
                 } else {
-                    console.log(`Updated ${subRes.affectedRows} sub-categories for main category: ${updatedCategory.category_name}`);
+                    console.log(`Successfully synced ${subRes.affectedRows} sub-categories for main category: ${updatedCategory.category_name}`);
                 }
 
-                console.log("updated main category: ", { id: id, ...updatedCategory });
+                console.log("Updated main category and triggered sync: ", { id: id, ...updatedCategory });
                 result(null, { id: id, ...updatedCategory });
             });
         });
