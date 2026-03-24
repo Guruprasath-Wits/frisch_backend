@@ -27,10 +27,10 @@ exports.markAsRead = (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    console.log("--------------------------------------------------");
-    console.log("Reiceved Missing Product Request");
-    console.log("Body:", req.body);
-    console.log("--------------------------------------------------");
+    // console.log("--------------------------------------------------");
+    // console.log("Reiceved Missing Product Request");
+    // console.log("Body:", req.body);
+    // console.log("--------------------------------------------------");
 
     if (!validateRequestBody(req, res)) return;
 

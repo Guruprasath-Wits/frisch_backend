@@ -2874,7 +2874,7 @@ app.use("/tax", require("./src/routes/tax.route.js"));
 app.use("/bottle", require("./src/routes/bottle.route.js"));
 app.use("/combo", require("./src/routes/combo.routes.js"));
 app.use("/holiday", require("./src/routes/holiday.route.js"));
-
+app.use("/missingProduct", require("./src/routes/missingProduct.route.js"));
 
 
 // Start server

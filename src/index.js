@@ -68,6 +68,8 @@ app.use("/cart", require("./routes/card.route.js"));
 app.use("/contactUs", require("./routes/contactUs.route.js"));
 app.use("/subscribe-orders", require("./routes/subscription.route.js"));
 app.use("/all_subscribe-orders", require("./routes/all_subscription.route.js"));
+app.use("/missingProduct", require("./routes/missingProduct.route.js"));
+
 
 
 
@@ -84,8 +86,8 @@ app.get("/label/pdf", async (req, res) => {
     const [orders_details] = await db.query("SELECT * FROM orders_details");
 
 
-   
-const htmlContent = `
+
+    const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,11 +126,11 @@ const htmlContent = `
 <body>
   <div class="page">
     ${orders
-      .map((order) => {
-        const matchingDetails = orders_details.filter(
-          (orders_detail) => orders_detail.order_id === order.order_id
-        );
-        return `
+        .map((order) => {
+          const matchingDetails = orders_details.filter(
+            (orders_detail) => orders_detail.order_id === order.order_id
+          );
+          return `
         <div class="cell">
           <div class="content">
             <strong>Order ID:</strong> ${order.order_id}
@@ -146,8 +148,8 @@ const htmlContent = `
           </div>
         </div>
         `;
-      })
-      .join("")}
+        })
+        .join("")}
   </div>
 </body>
 </html>
