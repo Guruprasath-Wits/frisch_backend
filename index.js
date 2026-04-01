@@ -23,6 +23,9 @@ const { TimeoutSettings } = require("puppeteer");
 const UNZER_PRIVATE_KEY_Sepa = 's-priv-2a10NiuHATL9ZqplLwQwInMD0OOrSXKT'; // Test Key
 const UNZER_PRIVATE_KEY = "p-priv-2a10OunrWO1uTONlO7ck7X9ObeZR9by6"; // Live Key
 
+// Change this to "https://frischfuersie.de" when deploying to live
+// const FRONTEND_URL = "http://localhost:4200";
+const FRONTEND_URL = "https://frischfuersie.de";
 
 const https = require("https");
 
@@ -165,6 +168,27 @@ app.post('/api/init-payment', async (req, res) => {
     console.error('Unzer error:', err.response?.data || err.message);
     res.status(500).json({ error: 'Unzer integration failed' });
   }
+});
+
+app.get("/api/payment-redirect", async (req, res) => {
+  const { orderId, status } = req.query;
+
+  if (status === "cancelled") {
+    // Update order status to 'failed' on cancellation
+    try {
+      await db.promise().query(
+        "UPDATE orders SET payment_status = 'failed' WHERE order_id = ?",
+        [orderId]
+      );
+    } catch (err) {
+      console.error("Error updating order status for cancellation:", err);
+    }
+    // Redirect to frontend failure page
+    return res.redirect(`${FRONTEND_URL}/unzer-failure?orderId=${orderId}`);
+  }
+
+  // Redirect to frontend success page for verification
+  return res.redirect(`${FRONTEND_URL}/unzer-success?orderId=${orderId}`);
 });
 
 app.post("/api/verify-payment", async (req, res) => {
@@ -2296,7 +2320,8 @@ app.get('/subscription/transactions', async (req, res) => {
 // });
 
 // cron.schedule('* * * * *', // every minute (for testing)
-cron.schedule('0 14 * * 5',
+// cron.schedule('0 14 * * 5', // every Friday at 14:00 (Server Time)
+cron.schedule('30 12 * * 0', // every Sunday at 12:30 (Server Time)
   async () => {   // Server 14:00 = German 16:00
     try {
       const [subscriptions] = await db.promise().query(

@@ -42,6 +42,11 @@ exports.create = async (req, res) => {
         const formatToYYYYMMDD = (dateStr) => {
             if (!dateStr) return null;
 
+            // Handle ISO strings (e.g., 2026-04-03T18:30:00.000Z)
+            if (dateStr.includes('T')) {
+                dateStr = dateStr.split('T')[0];
+            }
+
             // Already in YYYY-MM-DD
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 return dateStr;
