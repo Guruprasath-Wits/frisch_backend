@@ -86,14 +86,19 @@ Admin.savePermission = async (role_id, access) => {
   try {
     const query = `
       INSERT INTO permissions (
-        role_id, Category, Product, Customer_Enquiry, OrderList, Sample_Order,
+        role_id, Dashboard, Category, Main_Category, Sub_Category, Product, Customer_Enquiry, Coupon_Management, OrderList, Sample_Order,
         Our_Delivery_Areas, User_Advantages, Jobs, FAQ, Roles,
-        Permissions, Steuer, Bottle, Users, Settings, Imprint
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        Permissions, Subscription_Transactions, Steuer, Bottle, Users, Settings, Imprint, 
+        Missing_Products, Combo_Packs, Holiday
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
+        Dashboard = VALUES(Dashboard),
         Category = VALUES(Category),
+        Main_Category = VALUES(Main_Category),
+        Sub_Category = VALUES(Sub_Category),
         Product = VALUES(Product),
         Customer_Enquiry = VALUES(Customer_Enquiry),
+        Coupon_Management = VALUES(Coupon_Management),
         OrderList = VALUES(OrderList),
         Sample_Order = VALUES(Sample_Order),
         Our_Delivery_Areas = VALUES(Our_Delivery_Areas),
@@ -102,18 +107,26 @@ Admin.savePermission = async (role_id, access) => {
         FAQ = VALUES(FAQ),
         Roles = VALUES(Roles),
         Permissions = VALUES(Permissions),
+        Subscription_Transactions = VALUES(Subscription_Transactions),
         Steuer = VALUES(Steuer),
         Bottle = VALUES(Bottle),
         Users = VALUES(Users),
         Settings = VALUES(Settings),
-        Imprint = VALUES(Imprint);
+        Imprint = VALUES(Imprint),
+        Missing_Products = VALUES(Missing_Products),
+        Combo_Packs = VALUES(Combo_Packs),
+        Holiday = VALUES(Holiday);
     `;
 
     const values = [
       role_id,
+      access.Dashboard ?? 1,
       access.Category ?? 0,
+      access.Main_Category ?? 0,
+      access.Sub_Category ?? 0,
       access.Product ?? 0,
       access.Customer_Enquiry ?? 0,
+      access.Coupon_Management ?? 0,
       access.OrderList ?? 0,
       access.Sample_Order ?? 0,
       access.Our_Delivery_Areas ?? 0,
@@ -122,11 +135,15 @@ Admin.savePermission = async (role_id, access) => {
       access.FAQ ?? 0,
       access.Roles ?? 0,
       access.Permissions ?? 0,
+      access.Subscription_Transactions ?? 0,
       access.Steuer ?? 1,
       access.Bottle ?? 1,
       access.Users ?? 0,
       access.Settings ?? 0,
-      access.Imprint ?? 0
+      access.Imprint ?? 0,
+      access.Missing_Products ?? 0,
+      access.Combo_Packs ?? 0,
+      access.Holiday ?? 0
     ];
 
     const [result] = await sql.promise().query(query, values);
@@ -152,15 +169,17 @@ Admin.updatePermissions = async (role_id, access) => {
   try {
     const query = `
       UPDATE permissions 
-      SET Category = ?, Product = ?, Customer_Enquiry = ?, OrderList = ?, Sample_Order = ?, 
+      SET Dashboard = ?, Category = ?, Main_Category = ?, Sub_Category = ?, Product = ?, Customer_Enquiry = ?, Coupon_Management = ?, OrderList = ?, Sample_Order = ?, 
           Our_Delivery_Areas = ?, User_Advantages = ?, Jobs = ?, FAQ = ?, Roles = ?, 
-          Permissions = ?, Steuer = ?, Bottle = ?, Users = ?, Settings = ?, Imprint = ?
+          Permissions = ?, Subscription_Transactions = ?, Steuer = ?, Bottle = ?, Users = ?, Settings = ?, Imprint = ?, 
+          Missing_Products = ?, Combo_Packs = ?, Holiday = ?
       WHERE role_id = ?
     `;
     const values = [
-      access.Category, access.Product, access.Customer_Enquiry, access.OrderList,
-      access.Sample_Order, access.Our_Delivery_Areas, access.User_Advantages, access.Jobs,
-      access.FAQ, access.Roles, access.Permissions, access.Steuer, access.Bottle, access.Users, access.Settings, access.Imprint,
+      access.Dashboard ?? 1, access.Category ?? 0, access.Main_Category ?? 0, access.Sub_Category ?? 0, access.Product ?? 0, access.Customer_Enquiry ?? 0, access.Coupon_Management ?? 0, access.OrderList ?? 0,
+      access.Sample_Order ?? 0, access.Our_Delivery_Areas ?? 0, access.User_Advantages ?? 0, access.Jobs ?? 0,
+      access.FAQ ?? 0, access.Roles ?? 0, access.Permissions ?? 0, access.Subscription_Transactions ?? 0, access.Steuer ?? 1, access.Bottle ?? 1, access.Users ?? 0, access.Settings ?? 0, access.Imprint ?? 0,
+      access.Missing_Products ?? 0, access.Combo_Packs ?? 0, access.Holiday ?? 0,
       role_id
     ];
     const [result] = await sql.promise().query(query, values);
