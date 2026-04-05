@@ -174,11 +174,41 @@ exports.subcreate = async (req, res) => {
             newOrderId = `FfS_${Date.now()}_${Math.floor(100000 + Math.random() * 900000)}`;
         }
 
+        const formatToYYYYMMDD = (dateStr) => {
+            if (!dateStr) return null;
+
+            // Handle ISO strings (e.g., 2026-04-03T18:30:00.000Z)
+            if (dateStr.includes('T')) {
+                dateStr = dateStr.split('T')[0];
+            }
+
+            // Already in YYYY-MM-DD
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+
+            // Handle DD-MM-YYYY or DD/MM/YYYY
+            const parts = dateStr.split(/[-/]/);
+            if (parts.length === 3) {
+                let d, m, y;
+                if (parts[0].length === 4) {
+                    // YYYY-MM-DD or YYYY/MM/DD
+                    [y, m, d] = parts;
+                } else {
+                    // Assume DD-MM-YYYY or DD/MM/YYYY
+                    [d, m, y] = parts;
+                }
+                return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+            }
+
+            return null;
+        };
+
         const orderData = {
             order_id: newOrderId,
             user_id: req.body.user_id,
             delivery_date: req.body.delivery_date
-                ? new Date(req.body.delivery_date).toISOString().slice(0, 19).replace("T", " ")
+                ? formatToYYYYMMDD(req.body.delivery_date)
                 : null,
             address: req.body.address,
             contact: req.body.contact,
