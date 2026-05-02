@@ -26,6 +26,36 @@ exports.create = async (req, res) => {
 
         const newOrderId = `FfSs_${currentDateIST}_${Math.floor(1000 + Math.random() * 9000)}`;
 
+        const formatToYYYYMMDD = (dateStr) => {
+            if (!dateStr) return null;
+
+            // Handle ISO strings (e.g., 2026-04-03T18:30:00.000Z)
+            if (dateStr.includes('T')) {
+                dateStr = dateStr.split('T')[0];
+            }
+
+            // Already in YYYY-MM-DD
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+
+            // Handle DD-MM-YYYY or DD/MM/YYYY
+            const parts = dateStr.split(/[-/]/);
+            if (parts.length === 3) {
+                let d, m, y;
+                if (parts[0].length === 4) {
+                    // YYYY-MM-DD or YYYY/MM/DD
+                    [y, m, d] = parts;
+                } else {
+                    // Assume DD-MM-YYYY or DD/MM/YYYY
+                    [d, m, y] = parts;
+                }
+                return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+            }
+
+            return null;
+        };
+
         const orderData = {
             order_id: newOrderId,
             user_id: req.body.user_id,
@@ -34,7 +64,9 @@ exports.create = async (req, res) => {
             instruction: req.body.instruction,
             price: req.body.price,
             tips: req.body.tips,
-            delivery_date: req.body.delivery_date,
+            delivery_date: req.body.delivery_date
+                ? formatToYYYYMMDD(req.body.delivery_date)
+                : null,
             status: 1,
             paymentType: req.body.paymentType,
             iban: req.body.iban || null,
@@ -43,7 +75,7 @@ exports.create = async (req, res) => {
             nationalBankCode: req.body.nationalBankCode,
             formattedIban: req.body.formattedIban,
             deliveryDayOption: req.body.deliveryDayOption,
-            deliveryFee : req.body.deliveryFee
+            deliveryFee: req.body.deliveryFee
             // declaration: req.body.declaration
         };
 
@@ -55,7 +87,7 @@ exports.create = async (req, res) => {
         const data = await orders.create(orderData, productDetails, iban);
 
         // Update IBAN in user table if provided
-if (iban) {
+        if (iban) {
             await new Promise((resolve) => {
                 User.update(orderData.user_id, { iban: iban }, (err, userData) => {
                     if (err) {
@@ -170,7 +202,7 @@ exports.updateSubscribe = (req, res) => {
 
     const updatedorders = {
         price: req.body.price,
-        
+
     };
 
     const product = {
@@ -180,7 +212,7 @@ exports.updateSubscribe = (req, res) => {
     }
 
     // console.log(ordersId,updatedorders,product);
-    
+
 
     // Call the orders.edit method with updated data
     orders.updateSubscribe(ordersId, updatedorders, product, (err, data) => {
@@ -205,28 +237,28 @@ exports.BagUpdate = (req, res) => {
 
     const ordersId = req.params.id;
 
-        const updatedorders = {
-            gro_bag: req.body.gro_bag,
-            mitt_bag : req.body.mitt_bag,
-            bagu_bag : req.body.bagu_bag,
-            zusätzliche_tüte : req.body.zusätzliche_tüte
-        };
-    
-        // Call the orders.edit method with updated data
-          orders.BagUpdate(ordersId, updatedorders, (err, data) => {
-            if (err) {
-                res.status(err.kind === "not_found" ? 404 : 500).send({
-                    message: `Error updating orders with id ${ordersId}.`,
-                    error: err.message,
-                });
-            } else {
-                res.send({
-                    status: true,
-                    message: "orders updated successfully",
-                    orders: data,
-                });
-            }
-        });
+    const updatedorders = {
+        gro_bag: req.body.gro_bag,
+        mitt_bag: req.body.mitt_bag,
+        bagu_bag: req.body.bagu_bag,
+        zusätzliche_tüte: req.body.zusätzliche_tüte
+    };
+
+    // Call the orders.edit method with updated data
+    orders.BagUpdate(ordersId, updatedorders, (err, data) => {
+        if (err) {
+            res.status(err.kind === "not_found" ? 404 : 500).send({
+                message: `Error updating orders with id ${ordersId}.`,
+                error: err.message,
+            });
+        } else {
+            res.send({
+                status: true,
+                message: "orders updated successfully",
+                orders: data,
+            });
+        }
+    });
 };
 
 
@@ -297,19 +329,19 @@ exports.terminate = async (req, res) => {
     }
 
     const userData = {
-            username : req.body.username,
-            email : req.body.email,
-            deliveryFee : req.body.deliveryFee
-        }
+        username: req.body.username,
+        email: req.body.email,
+        deliveryFee: req.body.deliveryFee
+    }
     const password = req.body.password;
 
     let mailResult;
-try {
-    mailResult = await orderDeleteMail(userData);
-} catch (err) {
-    console.error("Error in sending email:", err);
-    return res.status(500).send({ message: 'Error sending email. Please try again later.' });
-}
+    try {
+        mailResult = await orderDeleteMail(userData);
+    } catch (err) {
+        console.error("Error in sending email:", err);
+        return res.status(500).send({ message: 'Error sending email. Please try again later.' });
+    }
 
 
     orders.findById(user_id, (err, data) => {

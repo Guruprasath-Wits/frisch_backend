@@ -8,6 +8,14 @@ console.error("!!! DB.JS LOADED - STARTING CONFIG !!!");
 const dbConfig = {
   // host: "217.154.8.230",
   host: "localhost",
+<<<<<<< HEAD
+=======
+  database: "Frisch",
+  user: "phpmyadmin",
+  password: "Dortmund@2106",
+  // user: "root",
+  // password: "",
+>>>>>>> 1fb1a9e553171a6b620dbbb4d61ea8d772efbc79
   // database: "Frisch",
   // user: "phpmyadmin",
   // password: "Dortmund@2106",
