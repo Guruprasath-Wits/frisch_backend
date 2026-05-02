@@ -191,7 +191,6 @@ app.post("/api/verify-payment", async (req, res) => {
     const state = payment.state?.id;
     const status = payment.state?.name;
 
-    console.log("✅ Unzer Payment State:", state);
 
     // ✅ 2. Get user ID from order
     const [orderRows] = await db
@@ -455,11 +454,18 @@ app.post('/payment-success', async (req, res) => {
       }
     });
 
+    const payment = response.data;
+    const state = payment.state?.id;
+    const status = payment.state?.name;
+
     // 2. Check if payment is successful
-    if (response.data?.state?.name === 'completed') {
+    if (status === 'completed') {
       // 3. Update order status
-      await OrdersService.updatePaymentStatus(orderId, "success", "pending");
-      // await OrdersService.updatePaymentStatus(orderId, { status: 'success' });
+      if (state === 1 || status === "completed") {
+        // ✅ Update order status and send confirmation email
+        await OrdersService.updatePaymentStatus(orderId, "success", "pending", paymentId);
+      }
+
       return res.json({ success: true, message: 'Unzer payment success confirmed' });
     }
 
