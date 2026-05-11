@@ -183,11 +183,27 @@ orders.create = (orderData, productDetails, iban) => {
 };
 
 
-orders.updatePaymentStatus = (order_id, status, orderStatus) => {
+orders.updatePaymentStatus = (order_id, status, orderStatus, payment_id) => {
     return new Promise((resolve, reject) => {
+        let query = "UPDATE orders SET payment_status = ?";
+        let params = [status];
+
+        if (orderStatus !== undefined) {
+            query += ", status = ?";
+            params.push(orderStatus);
+        }
+        
+        if (payment_id !== undefined) {
+            query += ", payment_id = ?";
+            params.push(payment_id);
+        }
+
+        query += " WHERE order_id = ?";
+        params.push(order_id);
+
         sql.query(
-            "UPDATE orders SET payment_status = ?, status = ? WHERE order_id = ?",
-            [status, orderStatus, order_id],
+            query,
+            params,
             async (err, res) => {
                 if (err) {
                     console.log("Error updating payment status:", err);
@@ -203,41 +219,30 @@ orders.updatePaymentStatus = (order_id, status, orderStatus) => {
                 // Fetch order and user details for email
                 sql.query("SELECT * FROM orders WHERE order_id = ?", [order_id], (orderErr, orderRows) => {
                     if (orderErr || !orderRows || orderRows.length === 0) {
-                        // Still resolve, but without email
                         return resolve({ order_id, status });
                     }
                     const order = orderRows[0];
-                    // Ensure delivery_date is a string for email function
                     if (order && order.delivery_date && typeof order.delivery_date !== 'string') {
                         order.delivery_date = order.delivery_date.toISOString().slice(0, 10);
                     }
                     sql.query("SELECT * FROM orders_details WHERE order_id = ?", [order_id], (orderErr, orderDetailRows) => {
                         if (orderErr || !orderDetailRows || orderDetailRows.length === 0) {
-                            // console.log("Order details not found for email sending", orderErr);
-                            // Still resolve, but without email
                             return resolve({ order_id, status });
                         }
                         const productDetails = orderDetailRows.map(item => ([
                             item.product_name,
                             item.quantity,
                             item.price
-
                         ]));
                         sql.query("SELECT * FROM users WHERE id = ?", [order.user_id], async (userErr, userRows) => {
                             if (userErr || !userRows || userRows.length === 0) {
-                                // console.log("User not found for email sending", userErr);
                                 return resolve({ order_id, status });
                             }
                             const user = userRows[0];
 
-                            // You may need to adjust the mail function and its arguments as per your actual implementation
                             try {
                                 const mailServices = require('../helpers/mailServices.js');
-                                // Example: orderConfirmMail(order, productDetails, user)
-                                // You may need to fetch product details if needed
-                                // console.log("Sending order confirmation email...", order, productDetails, user);
                                 await mailServices.orderConfirmMail(order, productDetails, user);
-                                // console.log("Order confirmation email sent");
                             } catch (mailErr) {
                                 console.log("Error sending order confirmation email:", mailErr);
                             }

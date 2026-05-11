@@ -23,6 +23,9 @@ const { TimeoutSettings } = require("puppeteer");
 const UNZER_PRIVATE_KEY_Sepa = 's-priv-2a10NiuHATL9ZqplLwQwInMD0OOrSXKT'; // Test Key
 const UNZER_PRIVATE_KEY = "p-priv-2a10OunrWO1uTONlO7ck7X9ObeZR9by6"; // Live Key
 
+// Change this to "https://frischfuersie.de" when deploying to live
+// const FRONTEND_URL = "http://localhost:4200";
+const FRONTEND_URL = "https://frischfuersie.de";
 
 const https = require("https");
 
@@ -167,6 +170,27 @@ app.post('/api/init-payment', async (req, res) => {
   }
 });
 
+app.get("/api/payment-redirect", async (req, res) => {
+  const { orderId, status } = req.query;
+
+  if (status === "cancelled") {
+    // Update order status to 'failed' on cancellation
+    try {
+      await db.promise().query(
+        "UPDATE orders SET payment_status = 'failed' WHERE order_id = ?",
+        [orderId]
+      );
+    } catch (err) {
+      console.error("Error updating order status for cancellation:", err);
+    }
+    // Redirect to frontend failure page
+    return res.redirect(`${FRONTEND_URL}/unzer-failure?orderId=${orderId}`);
+  }
+
+  // Redirect to frontend success page for verification
+  return res.redirect(`${FRONTEND_URL}/unzer-success?orderId=${orderId}`);
+});
+
 app.post("/api/verify-payment", async (req, res) => {
   const { orderId, paymentId } = req.body;
 
@@ -191,7 +215,6 @@ app.post("/api/verify-payment", async (req, res) => {
     const state = payment.state?.id;
     const status = payment.state?.name;
 
-    console.log("✅ Unzer Payment State:", state);
 
     // ✅ 2. Get user ID from order
     const [orderRows] = await db
@@ -455,11 +478,18 @@ app.post('/payment-success', async (req, res) => {
       }
     });
 
+    const payment = response.data;
+    const state = payment.state?.id;
+    const status = payment.state?.name;
+
     // 2. Check if payment is successful
-    if (response.data?.state?.name === 'completed') {
+    if (status === 'completed') {
       // 3. Update order status
-      await OrdersService.updatePaymentStatus(orderId, "success", "pending");
-      // await OrdersService.updatePaymentStatus(orderId, { status: 'success' });
+      if (state === 1 || status === "completed") {
+        // ✅ Update order status and send confirmation email
+        await OrdersService.updatePaymentStatus(orderId, "success", "pending", paymentId);
+      }
+
       return res.json({ success: true, message: 'Unzer payment success confirmed' });
     }
 
@@ -2296,7 +2326,8 @@ app.get('/subscription/transactions', async (req, res) => {
 // });
 
 // cron.schedule('* * * * *', // every minute (for testing)
-cron.schedule('0 14 * * 5',
+// cron.schedule('0 14 * * 5', // every Friday at 14:00 (Server Time)
+cron.schedule('30 12 * * 0', // every Sunday at 12:30 (Server Time)
   async () => {   // Server 14:00 = German 16:00
     try {
       const [subscriptions] = await db.promise().query(
@@ -2441,9 +2472,7 @@ app.get("/production/pdf", (req, res) => {
   //     const orderIds = orderIdsResult.map(row => row.order_id);
 
   pool.query(
-    `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'processing'`,
-    // `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'completed'`,
-
+    `SELECT order_id FROM orders WHERE delivery_date = ? AND status IN ('Assigned', 'processing')`,
     [date],
     (err, normalOrdersResult) => {
       if (err) {
@@ -2452,9 +2481,7 @@ app.get("/production/pdf", (req, res) => {
       }
 
       pool.query(
-        `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'processing'`,
-        // `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'completed'`,
-
+        `SELECT order_id FROM subscription WHERE delivery_date = ? AND status IN ('Assigned', 'processing')`,
         [date],
         (err, subscriptionOrdersResult) => {
           if (err) {
@@ -2485,8 +2512,10 @@ app.get("/production/pdf", (req, res) => {
           product AS p ON od.product_name = p.product_name
         INNER JOIN 
           category AS c ON p.category_id = c.id
+        INNER JOIN
+          main_category AS mc ON c.category_type = mc.category_name
         WHERE 
-          od.order_id IN (?) AND c.category_type = ?
+          od.order_id IN (?) AND mc.id = ?
         GROUP BY 
           od.product_name
         `,

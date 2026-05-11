@@ -53,7 +53,7 @@ Category.create = (newCategory, result) => {
 
 
 Category.edit = (id, updatedCategory, result) => {
-    const query = "UPDATE category SET category_name = ?,category_type = ?, category_img = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ?, min_delivery_charge = ? WHERE id = ?";
+    const query = "UPDATE category SET category_name = ?,category_type = ?, category_img = ?, delivery_fee_weekday = ?, delivery_fee_weekend = ?, holiday_fee = ?, min_delivery_charge = ?, is_18_plus = ? WHERE id = ?";
 
     sql.query(query, [
         updatedCategory.category_name,
@@ -63,6 +63,7 @@ Category.edit = (id, updatedCategory, result) => {
         updatedCategory.delivery_fee_weekend,
         updatedCategory.holiday_fee,
         updatedCategory.min_delivery_charge,
+        updatedCategory.is_18_plus,
         id
     ], (err, res) => {
         if (err) {
