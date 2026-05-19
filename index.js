@@ -2472,9 +2472,7 @@ app.get("/production/pdf", (req, res) => {
   //     const orderIds = orderIdsResult.map(row => row.order_id);
 
   pool.query(
-    `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'processing'`,
-    // `SELECT order_id FROM orders WHERE delivery_date = ? AND status = 'completed'`,
-
+    `SELECT order_id FROM orders WHERE delivery_date = ? AND status IN ('Assigned', 'processing')`,
     [date],
     (err, normalOrdersResult) => {
       if (err) {
@@ -2483,9 +2481,7 @@ app.get("/production/pdf", (req, res) => {
       }
 
       pool.query(
-        `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'processing'`,
-        // `SELECT order_id FROM subscription WHERE delivery_date = ? AND status = 'completed'`,
-
+        `SELECT order_id FROM subscription WHERE delivery_date = ? AND status IN ('Assigned', 'processing')`,
         [date],
         (err, subscriptionOrdersResult) => {
           if (err) {
@@ -2516,8 +2512,10 @@ app.get("/production/pdf", (req, res) => {
           product AS p ON od.product_name = p.product_name
         INNER JOIN 
           category AS c ON p.category_id = c.id
+        INNER JOIN
+          main_category AS mc ON c.category_type = mc.category_name
         WHERE 
-          od.order_id IN (?) AND c.category_type = ?
+          od.order_id IN (?) AND mc.id = ?
         GROUP BY 
           od.product_name
         `,
