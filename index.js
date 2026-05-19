@@ -19,9 +19,9 @@ const moment = require('moment');
 const { orderConfirmMail } = require("./src/helpers/mailServices.js");
 const { TimeoutSettings } = require("puppeteer");
 
-// const UNZER_PRIVATE_KEY = 's-priv-2a10ptr5q2ZTUdI7aYwJqreRyOyIrnjU'; // Test Key
+const UNZER_PRIVATE_KEY = 's-priv-2a10ptr5q2ZTUdI7aYwJqreRyOyIrnjU'; // Test Key
 const UNZER_PRIVATE_KEY_Sepa = 's-priv-2a10NiuHATL9ZqplLwQwInMD0OOrSXKT'; // Test Key
-const UNZER_PRIVATE_KEY = "p-priv-2a10OunrWO1uTONlO7ck7X9ObeZR9by6"; // Live Key
+// const UNZER_PRIVATE_KEY = "p-priv-2a10OunrWO1uTONlO7ck7X9ObeZR9by6"; // Live Key
 
 // Change this to "https://frischfuersie.de" when deploying to live
 // const FRONTEND_URL = "http://localhost:4200";
